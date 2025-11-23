@@ -1,6 +1,6 @@
 "use client";
 
-import { StepProps } from "../../../types/onboarding";
+import { StepProps } from "@type/onboarding";
 import { useState } from "react";
 
 type Option = {
