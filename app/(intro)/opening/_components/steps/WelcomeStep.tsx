@@ -1,14 +1,15 @@
 "use client";
 
 import Image from "next/image";
-import { LuArrowRight } from "react-icons/lu";
+import { StepIndicator } from "../StepIndicator";
+import { NextButton } from "../NextButton";
 
-interface Step1Props {
+interface WelcomeStepProps {
     onNext: () => void;
     currentStep: number;
 }
 
-export default function Step1({ onNext, currentStep }: Step1Props) {
+export function WelcomeStep({ onNext, currentStep }: WelcomeStepProps) {
     return (
         <section className="h-screen flex-center max-h-full flex-col pb-10 gap-8 justify-center">
             <div className="flex-center flex-1 w-full">
@@ -22,20 +23,8 @@ export default function Step1({ onNext, currentStep }: Step1Props) {
                 <p>Rethink your beauty habits. Track, reflect, and revive your beauty products — one product at a time.</p>
             </div>
 
-            <div className="flex-center flex-row gap-3">
-                {[0, 1, 2].map((step) => (
-                    <div
-                        key={step}
-                        className={`w-10 h-1 rounded-full transition-colors ${
-                            step === currentStep ? "bg-gray-400" : "bg-gray-300"
-                        }`}
-                    />
-                ))}
-            </div>
-
-            <div onClick={onNext} className="w-16 h-16 bg-black hover:bg-neutral-900 p-2 rounded-full flex-center mt-auto cursor-pointer">
-                <LuArrowRight className="text-2xl rounded-full flex-center text-white transition-colors" />
-            </div>
+            <StepIndicator totalSteps={3} currentStep={currentStep} />
+            <NextButton onClick={onNext} />
         </section>
     );
 }
