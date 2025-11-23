@@ -3,16 +3,13 @@
 import { useState } from "react";
 import Image from "next/image";
 import { LuUser, LuPlus } from "react-icons/lu";
+import { StepProps } from "@type/onboarding";
 
 export type StepData = {
     photo: string | null;
     nickname: string;
     gender: string;
     birthYear: string;
-};
-
-type StepProps = {
-    onNext: (answer: StepData) => void;
 };
 
 const genderOptions = [
@@ -23,7 +20,7 @@ const genderOptions = [
 const currentYear = new Date().getFullYear();
 const yearOptions = Array.from({ length: 100 }, (_, i) => currentYear - i);
 
-export default function Step1({ onNext }: StepProps) {
+export function ProfileSetupStep({ onNext }: StepProps<StepData>) {
     const [photo, setPhoto] = useState<string | null>(null);
     const [nickname, setNickname] = useState("");
     const [gender, setGender] = useState("");

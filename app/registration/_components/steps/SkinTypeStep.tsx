@@ -1,10 +1,7 @@
 "use client";
 
+import { StepProps } from "@type/onboarding";
 import { useState } from "react";
-
-type StepProps = {
-    onNext: (answer: string) => void;
-};
 
 const skinTypes = [
     { id: "normal", label: "Normal" },
@@ -14,7 +11,7 @@ const skinTypes = [
     { id: "sensitive", label: "Sensitive" },
 ];
 
-export default function Step2({ onNext }: StepProps) {
+export function SkinTypeStep({ onNext }: StepProps<string>) {
     const [selected, setSelected] = useState<string | null>(null);
 
     const isValid = selected !== null;

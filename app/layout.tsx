@@ -12,8 +12,8 @@ export default function RootLayout({
     children: React.ReactNode;
 }>) {
     return (
-        <html lang="id">
-            <body className={`font-euclid antialiased`}>{children}</body>
+        <html lang="id" className="scrollbar-hide">
+            <body className={`font-euclid antialiased box-border`}>{children}</body>
         </html>
     );
 }

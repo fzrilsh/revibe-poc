@@ -3,14 +3,31 @@
 
 @theme {
     --font-euclid: "Euclid Circular A", sans-serif;
-    
+
     --color-siam: #5f6750;
     --color-woodsmoke: #1d1d1d;
+    --color-chetwode-blue: #958ffa;
 }
 
 @layer components {
+    .bg-fix {
+        @apply fixed top-0 right-0 left-0 w-full;
+    }
+
+    .flex-start {
+        @apply flex items-start justify-start;
+    }
+
+    .flex-end {
+        @apply flex items-end justify-end;
+    }
+
     .flex-center {
         @apply flex flex-col justify-center items-center gap-4;
+    }
+
+    .flex-between {
+        @apply flex items-center justify-between;
     }
 }
 
