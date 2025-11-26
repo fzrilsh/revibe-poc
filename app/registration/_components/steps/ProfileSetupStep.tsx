@@ -46,12 +46,12 @@ export function ProfileSetupStep({ onNext }: StepProps<StepData>) {
     };
 
     return (
-        <div className="max-w-md mx-auto w-full flex-center h-full flex-col gap-8">
-            <div className="flex-center flex-col gap-2 text-center">
+        <div className="max-w-md mx-auto w-full h-full flex flex-col gap-8">
+            <div className="flex flex-col items-center gap-2 text-center">
                 <h1 className="text-2xl max-w-xs font-bold leading-snug text-woodsmoke">Now let&apos;s get to know you better!</h1>
             </div>
 
-            <div className="flex-center flex-col w-full h-full gap-6">
+            <div className="flex flex-col w-full h-full gap-6">
                 <div className="flex flex-col items-center gap-2">
                     <label className="relative cursor-pointer group">
                         <input type="file" accept="image/*" onChange={handlePhotoUpload} className="hidden" />
@@ -63,7 +63,7 @@ export function ProfileSetupStep({ onNext }: StepProps<StepData>) {
                     <span className="text-sm text-gray-600">Add a photo</span>
                 </div>
 
-                <div className="flex-center flex-col w-full gap-4">
+                <div className="flex flex-col w-full gap-4">
                     <input type="text" placeholder="Nickname *" value={nickname} id="nickname" name="nickname" onChange={(e) => setNickname(e.target.value)} className="w-full px-5 py-4 rounded-3xl border-2 border-gray-300 focus:border-[#958FFA] focus:outline-none transition" />
 
                     <select value={gender} onChange={(e) => setGender(e.target.value)} id="gender" name="gender" className="w-full px-5 py-4 rounded-3xl border-2 border-gray-300 focus:border-[#958FFA] focus:outline-none transition appearance-none bg-white cursor-pointer">
