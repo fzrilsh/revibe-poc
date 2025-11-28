@@ -8,36 +8,63 @@ datasource db {
   directUrl = env("DIRECT_URL")
 }
 
-enum SkinType {
-  OILY
-  DRY
-  COMBINATION
-  NORMAL
-}
-
 model User {
-  id            String    @id @default(cuid())
-  username      String    @unique
-  email         String    @unique
-  passwordHash  String    @map("password_hash")
-  nickname      String?
-  birthYear     Int?      @map("birth_year")
-  profileImage  String?   @map("profile_image")
-  
-  skinType      SkinType? @map("skin_type") 
-
-  createdAt     DateTime  @default(now()) @map("created_at")
-
-  skinConcerns  SkinConcern[]
+  nickname          String                 @map("nickname")
+  birthYear         Int?                   @map("birth_year")
+  profileImage      String?                @map("profile_image")
+  skinType          SkinType?              @map("skin_type")
+  createdAt         DateTime               @default(now()) @map("created_at")
+  id                String                 @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  onboardingAnswers UserOnboardingAnswer[]
+  skinConcerns      UserSkinConcern[]
 
   @@map("users")
 }
 
 model SkinConcern {
-  id    Int     @id @default(autoincrement())
-  name  String  @unique
-
-  users User[]
+  id                 Int               @id @default(autoincrement())
+  name               String            @unique
+  user_skin_concerns UserSkinConcern[]
 
   @@map("skin_concerns")
+}
+
+model UserSkinConcern {
+  skinConcernId Int         @map("skin_concern_id")
+  userId        String      @map("user_id") @db.Uuid
+  skinConcern   SkinConcern @relation(fields: [skinConcernId], references: [id])
+  user          User        @relation(fields: [userId], references: [id])
+
+  @@id([userId, skinConcernId])
+  @@map("user_skin_concerns")
+}
+
+model OnboardingQuestion {
+  id                    Int                    @id @default(autoincrement())
+  text                  String
+  order                 Int                    @default(0)
+  createdAt             DateTime               @default(now()) @map("created_at")
+  userOnboardingAnswers UserOnboardingAnswer[]
+
+  @@map("onboarding_questions")
+}
+
+model UserOnboardingAnswer {
+  id         Int                @id @default(autoincrement())
+  value      String
+  createdAt  DateTime           @default(now()) @map("created_at")
+  questionId Int                @map("question_id")
+  userId     String             @map("user_id") @db.Uuid
+  question   OnboardingQuestion @relation(fields: [questionId], references: [id])
+  user       User               @relation(fields: [userId], references: [id])
+
+  @@map("user_onboarding_answers")
+}
+
+enum SkinType {
+  OILY
+  DRY
+  COMBINATION
+  SENSITIVE
+  NORMAL
 }
