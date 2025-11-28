@@ -21,20 +21,3 @@ export async function POST(req: Request) {
     })
 }
 
-export async function GET(req: Request) {
-    const url = new URL(req.url)
-    const targetType = url.searchParams.get('target_type')
-    const targetId = Number(url.searchParams.get('target_id') ?? '0')
-    if (!targetType || !targetId) return NextResponse.json({ error: 'target_type and target_id required' }, { status: 400 })
-
-    let liked = false
-    const total = await countLikes(targetType, targetId)
-    const user = await getCurrentUserFromRequest(req)
-
-    if (user) liked = await userLiked(user.id, targetType, targetId)
-    return NextResponse.json({
-        status: 'success',
-        message: targetType + ' liked successfully',
-        data: { total, liked },
-    })
-}
