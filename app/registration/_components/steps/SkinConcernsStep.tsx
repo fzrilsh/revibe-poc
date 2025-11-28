@@ -32,13 +32,13 @@ export function SkinConcernsStep({ onNext }: StepProps<string[]>) {
     };
 
     return (
-        <div className="max-w-md mx-auto w-full flex-center h-full flex-col gap-8">
-            <div className="flex-center flex-col gap-2 text-center">
+        <div className="max-w-md mx-auto w-full h-full flex flex-col gap-8">
+            <div className="flex flex-col items-center gap-2 text-center">
                 <h1 className="text-2xl font-bold leading-snug text-woodsmoke">What are your skin concerns?</h1>
                 <p className="text-gray-600">You can select as many tags as you&apos;d like</p>
             </div>
 
-            <div className="flex-center flex-col gap-4 h-full">
+            <div className="flex flex-col gap-4 h-full">
                 <div className="grid grid-cols-2 gap-3 w-full">
                     {concerns.map((concern) => (
                         <button

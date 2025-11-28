@@ -7,6 +7,16 @@
     --color-siam: #5f6750;
     --color-woodsmoke: #1d1d1d;
     --color-chetwode-blue: #958ffa;
+
+    --color-cerise-red: #f52664;
+    --color-rose: #ff2d72;
+
+    --color-bright-sun: #ffd93d;
+    --color-remy: #ffebf1;
+
+    --color-blue-chalk: #eae3ff;
+    --color-perfume: #d4c6ff;
+    --color-portage: #9da0ff;
 }
 
 @layer components {

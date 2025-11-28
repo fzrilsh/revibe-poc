@@ -23,13 +23,13 @@ export function SkinTypeStep({ onNext }: StepProps<string>) {
     };
 
     return (
-        <div className="max-w-md mx-auto w-full flex-center flex-col gap-4 h-full">
-            <div className="flex-center flex-col gap-2 text-center">
+        <div className="max-w-md mx-auto w-full h-full flex flex-col gap-4">
+            <div className="flex flex-col items-center gap-2 text-center">
                 <h1 className="text-2xl font-bold leading-snug text-woodsmoke">What is your skin type?</h1>
                 <p className="text-gray-600">Help us tailor your best experience</p>
             </div>
 
-            <div className="flex-center flex-col gap-4 h-full">
+            <div className="flex flex-col gap-4 h-full">
                 <div className="grid grid-cols-2 gap-3 w-full">
                     {skinTypes.map((type, index) => (
                         <button

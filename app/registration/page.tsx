@@ -15,6 +15,7 @@ export default function RegistrationPage() {
     const [index, setIndex] = useState(0 as number);
     const [answers, setAnswers] = useState<Record<number, StepData | string | string[]>>({});
     const CurrentStep = steps[index];
+    const isCompletion = index === total;
 
     const handleNext = (answer: StepData | string | string[]) => {
         const updatedAnswers = { ...answers, [index]: answer };
@@ -28,9 +29,9 @@ export default function RegistrationPage() {
     };
 
     return (
-        <main className="min-h-screen p-4 flex-center justify-center flex-col w-full">
+        <main className={`min-h-screen h-full p-4 flex-center flex-col w-full ${isCompletion ? "justify-center" : "justify-start"}`}>
             {index < total && <NavigationHeader currentStep={index} totalSteps={total} onBack={handleBack} canGoBack={index > 0} />}
-            <div className="h-full py-4 w-full flex-center flex-col gap-4">
+            <div className="flex-1 py-4 w-full flex flex-col items-center gap-4">
                 <CurrentStep onNext={handleNext} />
             </div>
         </main>
