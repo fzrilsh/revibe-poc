@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { findPostById, updatePost, deletePost } from '@/features/post/post.repository'
+import { findPostById, updatePost, deletePost } from '@/features/post/post.repo'
 import getCurrentUserFromRequest from '@/lib/getCurrentUser'
 import { buildPublicPost } from '@/features/post/buildPublicPost'
 

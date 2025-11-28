@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { createPost, listPosts } from '@/features/post/post.repository'
+import { createPost, listPosts } from '@/features/post/post.repo'
 import getCurrentUserFromRequest from '@/lib/getCurrentUser'
 import { createSupabaseClient, POST_BUCKET, buildPublicUrl } from '@/lib/config'
 import { buildPublicPost, buildPublicPosts } from '@/features/post/buildPublicPost'
