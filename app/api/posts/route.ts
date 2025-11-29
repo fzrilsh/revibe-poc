@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { createPost, listPosts } from '@/features/post/post.repo'
+import { userLiked } from '@/features/post/like.repository'
 import getCurrentUserFromRequest from '@/lib/getCurrentUser'
 import { createSupabaseClient, POST_BUCKET, buildPublicUrl } from '@/lib/config'
 import { buildPublicPost, buildPublicPosts } from '@/features/post/buildPublicPost'
@@ -9,6 +10,15 @@ export async function GET(req: Request) {
     const take = Number(url.searchParams.get('take') ?? '20')
     const skip = Number(url.searchParams.get('skip') ?? '0')
     const posts = await listPosts(take, skip)
+    const currentUser = await getCurrentUserFromRequest(req).catch(() => null)
+    if (currentUser) {
+        await Promise.all(
+            posts.map(async (p: any) => {
+                const liked = await userLiked(currentUser.id, 'Post', p.id)
+                ;(p as any)._liked = liked
+            })
+        )
+    }
     return NextResponse.json({
         status: 'success',
         message: 'Posts retrieved successfully',

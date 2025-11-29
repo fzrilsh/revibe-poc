@@ -1,11 +1,38 @@
 import prisma from '@/lib/prisma'
 
 export async function createComment(userId: string, targetType: string, targetId: number, content: string) {
-    return prisma.comment.create({ data: { userId, targetType, targetId, content } })
+    return prisma.comment.create({
+        data: { userId, targetType, targetId, content },
+        include: {
+            user: {
+                select: {
+                    id: true,
+                    nickname: true,
+                    profileImage: true,
+                    skinType: true,
+                    createdAt: true,
+                },
+            },
+        },
+    })
 }
 
 export async function listComments(targetType: string, targetId: number) {
-    return prisma.comment.findMany({ where: { targetType, targetId }, orderBy: { createdAt: 'asc' } })
+    return prisma.comment.findMany({
+        where: { targetType, targetId },
+        orderBy: { createdAt: 'asc' },
+        include: {
+            user: {
+                select: {
+                    id: true,
+                    nickname: true,
+                    profileImage: true,
+                    skinType: true,
+                    createdAt: true,
+                },
+            },
+        },
+    })
 }
 
 export async function findCommentById(id: number) {
@@ -23,4 +50,8 @@ export async function deleteComment(id: number, userId: string) {
     if (!c || c.userId !== userId) return null
     await prisma.like.deleteMany({ where: { targetType: c.targetType, targetId: c.targetId } })
     return prisma.comment.delete({ where: { id } })
+}
+
+export async function countComments(targetType: string, targetId: number) {
+    return prisma.comment.count({ where: { targetType, targetId } })
 }

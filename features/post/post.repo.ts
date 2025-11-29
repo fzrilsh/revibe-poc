@@ -1,5 +1,6 @@
 import { prisma } from '@/lib/prisma'
 import { countLikes } from './like.repository'
+import { countComments } from './comment.repository'
 import { createSupabaseClient } from '@/lib/config'
 
 function isPrismaTableMissingError(err: any) {
@@ -26,10 +27,27 @@ export async function createPost(userId: string, data: { content?: string | null
 
 export async function findPostById(id: number) {
   try {
-    const post = await prisma.post.findUnique({ where: { id } })
+    const post = await prisma.post.findUnique({
+      where: { id },
+      include: {
+        user: {
+          select: {
+            id: true,
+            nickname: true,
+            profileImage: true,
+            skinType: true,
+            createdAt: true,
+          },
+        },
+      },
+    })
     if (!post) return null
-    const c = await countLikes('Post', post.id)
-    ;(post as any)._likesCount = c
+    const likesCount = await countLikes('Post', post.id)
+    const commentsCount = await countComments('Post', post.id)
+    ;(post as any)._likesCount = likesCount
+    ;(post as any)._commentsCount = commentsCount
+    ;(post as any)._author = (post as any).user
+    delete (post as any).user
     return post
   } catch (err: any) {
     if (isPrismaTableMissingError(err)) {
@@ -42,12 +60,31 @@ export async function findPostById(id: number) {
 
 export async function listPosts(take = 20, skip = 0) {
   try {
-    const posts = await prisma.post.findMany({ orderBy: { createdAt: 'desc' }, take, skip })
-    // attach likes count for each post
+    const posts = await prisma.post.findMany({
+      orderBy: { createdAt: 'desc' },
+      take,
+      skip,
+      include: {
+        user: {
+          select: {
+            id: true,
+            nickname: true,
+            profileImage: true,
+            skinType: true,
+            createdAt: true,
+          },
+        },
+      },
+    })
+    // attach likes count and comments count for each post
     await Promise.all(
       posts.map(async (p) => {
-        const c = await countLikes('Post', p.id)
-        ;(p as any)._likesCount = c
+        const likesCount = await countLikes('Post', p.id)
+        const commentsCount = await countComments('Post', p.id)
+        ;(p as any)._likesCount = likesCount
+        ;(p as any)._commentsCount = commentsCount
+        ;(p as any)._author = (p as any).user
+        delete (p as any).user
       })
     )
     return posts

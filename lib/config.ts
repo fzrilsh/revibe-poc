@@ -11,6 +11,8 @@ export const TEN_YEARS_IN_SECONDS = 60 * 60 * 24 * 365 * 10
 
 export function buildPublicUrl(path: string | null, bucket?: string) {
     if (!path) return null
+    // If already an absolute URL, return as-is
+    if (typeof path === 'string' && /^https?:\/\//i.test(path)) return path
     if (!SUPABASE_URL) return null
     const b = bucket ?? BUCKET
     return `${SUPABASE_URL}/storage/v1/object/public/${b}/${path}`
