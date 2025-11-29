@@ -19,10 +19,18 @@ export default function SplashPage() {
     const [leaving, setLeaving] = useState(false);
 
     useEffect(() => {
+        // If already authenticated, skip splash entirely
+        const hasToken = document.cookie.split(";").some((c) => c.trim().startsWith("rv_token="));
+        if (hasToken) {
+            window.location.href = "/";
+            return;
+        }
         const showTimer = setTimeout(() => {
             setLeaving(true);
             // Push setelah animasi keluar selesai
             const navTimer = setTimeout(() => {
+                // Mark intro seen so opening can be skipped next time
+                try { localStorage.setItem("revibe_intro_seen", "1"); } catch {}
                 router.push("/opening");
             }, EXIT_DURATION);
             return () => clearTimeout(navTimer);

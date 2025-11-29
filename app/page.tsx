@@ -19,7 +19,9 @@ export default function Home() {
         }
     }, [router]);
 
-    return <>
-        <h1>Bisa</h1>
-    </>;
+    return (
+        <>
+            <h1>Bisa</h1>
+        </>
+    );
 }
