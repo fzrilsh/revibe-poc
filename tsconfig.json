@@ -19,6 +19,7 @@
             }
         ],
         "paths": {
+            "@/*": ["./*"],
             "@type/*": ["./types/*"],
             "@navigation/*": ["./components/navigation/*"],
             "@section/*": ["./components/section/*"]

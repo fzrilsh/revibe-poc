@@ -22,7 +22,22 @@ export default function OnboardingPage() {
         const updatedAnswers = { ...answers, [index]: answer };
         setAnswers(updatedAnswers);
         console.log("Onboarding answers:", updatedAnswers);
-        setIndex((i) => (i < steps.length - 1 ? i + 1 : i));
+        // compute next index
+        setIndex((i) => {
+            const nextIndex = i < steps.length - 1 ? i + 1 : i;
+            // When entering CompletionStep, persist onboarding answers to localStorage
+            if (nextIndex === steps.length - 1) {
+                const questionCount = steps.length - 1; // exclude completion
+                const arr = Array.from({ length: questionCount }, (_, q) => ({
+                    questionId: q + 1,
+                    answer: (q === index ? answer : updatedAnswers[q]) ?? ''
+                }));
+                try {
+                    localStorage.setItem('revibe_onboarding_answers', JSON.stringify(arr));
+                } catch {}
+            }
+            return nextIndex;
+        });
     };
 
     const handleBack = () => {

@@ -1,8 +1,16 @@
 "use client";
 
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 
 export function CompletionStep() {
+    const router = useRouter();
+
+    const handleContinue = () => {
+        localStorage.setItem('revibe_intro_seen', 'true');
+        router.push('/registration');
+    };
+
     return (
         <div className="max-w-md mx-auto h-full w-full flex-center flex-col gap-8">
             <div>
@@ -13,6 +21,12 @@ export function CompletionStep() {
                     Nicely done! 💛 A fresh start for your skin, your shelf, and your mindset.
                 </h1>
             </div>
+            <button 
+                onClick={handleContinue}
+                className="w-full max-w-md py-4 rounded-full bg-black text-white text-lg font-medium hover:bg-gray-800 transition-colors"
+            >
+                Continue to Registration
+            </button>
         </div>
     );
 }

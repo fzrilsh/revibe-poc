@@ -10,6 +10,7 @@ export type StepData = {
     nickname: string;
     gender: string;
     birthYear: string;
+    file?: File | null;
 };
 
 const genderOptions = [
@@ -22,6 +23,7 @@ const yearOptions = Array.from({ length: 100 }, (_, i) => currentYear - i);
 
 export function ProfileSetupStep({ onNext }: StepProps<StepData>) {
     const [photo, setPhoto] = useState<string | null>(null);
+    const [file, setFile] = useState<File | null>(null);
     const [nickname, setNickname] = useState("");
     const [gender, setGender] = useState("");
     const [birthYear, setBirthYear] = useState("");
@@ -31,6 +33,7 @@ export function ProfileSetupStep({ onNext }: StepProps<StepData>) {
     const handlePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (file) {
+            setFile(file);
             const reader = new FileReader();
             reader.onloadend = () => {
                 setPhoto(reader.result as string);
@@ -41,7 +44,7 @@ export function ProfileSetupStep({ onNext }: StepProps<StepData>) {
 
     const handleContinue = () => {
         if (isValid) {
-            onNext({ photo, nickname, gender, birthYear });
+            onNext({ photo, nickname, gender, birthYear, file });
         }
     };
 

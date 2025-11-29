@@ -14,7 +14,7 @@ export function CompletionStep() {
                 </div>
             </div>
 
-            <button className="w-full py-4 rounded-full bg-black text-white text-lg disabled:opacity-40 disabled:cursor-not-allowed hover:bg-gray-800 transition">
+            <button onClick={() => window.location.href = '/'} className="w-full py-4 rounded-full bg-black text-white text-lg disabled:opacity-40 disabled:cursor-not-allowed hover:bg-gray-800 transition">
                 Explore REVIBE
             </button>
         </div>

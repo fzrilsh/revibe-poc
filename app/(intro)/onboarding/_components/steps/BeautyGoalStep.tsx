@@ -20,8 +20,9 @@ export function BeautyGoalStep({ onNext }: StepProps) {
 
     const handleSelect = (optionId: string) => {
         setSelected(optionId);
+        const label = options.find(o => o.id === optionId)?.label ?? optionId;
         setTimeout(() => {
-            onNext(optionId);
+            onNext(label);
         }, 300);
     };
 
