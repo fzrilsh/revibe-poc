@@ -7,13 +7,13 @@ function isPrismaTableMissingError(err: any) {
 
 export async function toggleLike(userId: string, targetType: string, targetId: number) {
     try {
+        // idempotent: if already exists, keep it and return liked=true
         const existing = await prisma.like.findUnique({ where: { userId_targetType_targetId: { userId, targetType, targetId } } }).catch(() => null)
         if (existing) {
-            await prisma.like.delete({ where: { id: existing.id } })
-            return { liked: false }
+            return { liked: true, already: true }
         }
         await prisma.like.create({ data: { userId, targetType, targetId } })
-        return { liked: true }
+        return { liked: true, created: true }
     } catch (err: any) {
         if (isPrismaTableMissingError(err)) {
             const supabase = createSupabaseClient()
@@ -25,11 +25,15 @@ export async function toggleLike(userId: string, targetType: string, targetId: n
                 .eq('target_id', targetId)
                 .limit(1)
             if (existing && existing.length) {
-                await supabase.from('likes').delete().eq('id', existing[0].id)
-                return { liked: false }
+                return { liked: true, already: true }
             }
-            await supabase.from('likes').insert([{ user_id: userId, target_type: targetType, target_id: targetId }])
-            return { liked: true }
+            // attempt insert; if unique violation occurs, treat as already liked
+            const { error } = await supabase.from('likes').insert([{ user_id: userId, target_type: targetType, target_id: targetId }])
+            if (error) {
+                // conflict or other error — assume already liked to be idempotent
+                return { liked: true, already: true }
+            }
+            return { liked: true, created: true }
         }
         throw err
     }
