@@ -19,6 +19,7 @@ export async function GET(req: Request) {
             })
         )
     }
+    
     return NextResponse.json({
         status: 'success',
         message: 'Posts retrieved successfully',
