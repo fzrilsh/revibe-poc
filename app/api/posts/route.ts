@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server'
 import { createPost, listPosts } from '@/features/post/post.repo'
 import { userLiked } from '@/features/post/like.repository'
 import getCurrentUserFromRequest from '@/lib/getCurrentUser'
-import { createSupabaseClient, POST_BUCKET, buildPublicUrl } from '@/lib/config'
+import { createSupabaseClient, POST_BUCKET } from '@/lib/config'
 import { buildPublicPost, buildPublicPosts } from '@/features/post/buildPublicPost'
 
 export async function GET(req: Request) {
