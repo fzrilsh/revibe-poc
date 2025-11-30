@@ -1,4 +1,10 @@
 import prisma from '@/lib/prisma'
+import { createSupabaseClient } from '@/lib/config'
+import { buildPublicUser } from '@/features/auth/buildPublicUser'
+
+function isPrismaTableMissingError(err: any) {
+    return err && typeof err === 'object' && err.code === 'P2021'
+}
 
 export async function createComment(userId: string, targetType: string, targetId: number, content: string) {
     return prisma.comment.create({
