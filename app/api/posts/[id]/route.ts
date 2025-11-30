@@ -22,18 +22,31 @@ export async function GET(req: Request) {
 export async function PATCH(req: Request) {
     const user = await getCurrentUserFromRequest(req)
     if (!user) return NextResponse.json({ error: 'Not authenticated' }, { status: 401 })
+
     const id = Number(req.url.split('/').pop())
     const body = await req.json()
+
     const updated = await updatePost(id, user.id, { content: body.content ?? null, imageUrl: body.image_url ?? body.imageUrl ?? null })
     if (!updated) return NextResponse.json({ error: 'Not found or not allowed' }, { status: 404 })
-    return NextResponse.json({ data: { post: buildPublicPost(updated) } })
+
+    return NextResponse.json({
+        status: 'success',
+        message: 'Post updated successfully',
+        data: { post: buildPublicPost(updated) }
+    })
 }
 
 export async function DELETE(req: Request) {
     const user = await getCurrentUserFromRequest(req)
     if (!user) return NextResponse.json({ error: 'Not authenticated' }, { status: 401 })
     const id = Number(req.url.split('/').pop())
+
     const deleted = await deletePost(id, user.id)
     if (!deleted) return NextResponse.json({ error: 'Not found or not allowed' }, { status: 404 })
-    return NextResponse.json({ data: { post: buildPublicPost(deleted) } })
+
+    return NextResponse.json({
+        status: 'success',
+        message: 'Post updated successfully',
+        data: { post: buildPublicPost(deleted) }
+    })
 }
