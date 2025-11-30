@@ -42,7 +42,10 @@ export function buildPublicPost(post: RawPost | null) {
         created_at: createdAt,
         likes_count: likesCount,
         comments_count: commentsCount,
-        author: authorRaw ? buildPublicUser(authorRaw) : undefined,
+        author: authorRaw ? {
+            nickname: authorRaw.nickname,
+            profile_image: buildPublicUrl((authorRaw.profileImage ?? (authorRaw as any).profile_image) ?? null)
+        } : undefined,
         liked,
     }
 }
