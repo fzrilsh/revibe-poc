@@ -3,20 +3,39 @@ import { findPostById, updatePost, deletePost } from '@/features/post/post.repo'
 import getCurrentUserFromRequest from '@/lib/getCurrentUser'
 import { buildPublicPost } from '@/features/post/buildPublicPost'
 import { userLiked } from '@/features/post/like.repository'
+import { listComments } from '@/features/post/comment.repository'
+import { buildPublicUser } from '@/features/auth/buildPublicUser'
+import { buildPublicUrl } from '@/lib/config'
 
 export async function GET(req: Request) {
     const id = Number(req.url.split('/').pop())
     const post = await findPostById(id)
     if (!post) return NextResponse.json({ error: 'Not found' }, { status: 404 })
-    
+
     // Check if current user liked this post
     const currentUser = await getCurrentUserFromRequest(req)
     if (currentUser) {
         const liked = await userLiked(currentUser.id, 'Post', post.id)
-        ;(post as any)._liked = liked
+            ; (post as any)._liked = liked
     }
-    
-    return NextResponse.json({ data: { post: buildPublicPost(post) } })
+
+    // attach comments for detailed view
+    const comments = await listComments('Post', post.id)
+    const publicComments = (comments ?? []).map((c: any) => ({
+        id: c.id,
+        content: c.content,
+        created_at: c.createdAt?.toISOString?.() ?? (c as any).created_at ?? new Date().toISOString(),
+        user: {
+            nickname: c.user.nickname,
+            profile_image: buildPublicUrl((c.user.profileImage ?? (c.user as any).profile_image) ?? null)
+        }
+    }))
+
+    return NextResponse.json({
+        status: 'success',
+        message: 'Post retrieved successfully',
+        data: { post: { ...buildPublicPost(post), liked: (post as any)._liked ?? false, comments: publicComments } }
+    })
 }
 
 export async function PATCH(req: Request) {
@@ -46,7 +65,7 @@ export async function DELETE(req: Request) {
 
     return NextResponse.json({
         status: 'success',
-        message: 'Post updated successfully',
+        message: 'Post deleted successfully',
         data: { post: buildPublicPost(deleted) }
     })
 }
