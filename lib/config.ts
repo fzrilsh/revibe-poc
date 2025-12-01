@@ -1,6 +1,7 @@
 export const COOKIE_NAME = 'rv_token'
 export const BUCKET = 'profile'
 export const POST_BUCKET = 'post'
+export const PRODUCT_BUCKET = 'product'
 
 export const SUPABASE_URL = process.env.SUPABASE_URL ?? ''
 export const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY ?? ''

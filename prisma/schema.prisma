@@ -15,11 +15,12 @@ model User {
   skinType          SkinType?              @map("skin_type")
   createdAt         DateTime               @default(now()) @map("created_at")
   id                String                 @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  onboardingAnswers UserOnboardingAnswer[]
-  skinConcerns      UserSkinConcern[]
-  posts             Post[]
   comments          Comment[]
   likes             Like[]
+  posts             Post[]
+  items             Item[]
+  onboardingAnswers UserOnboardingAnswer[]
+  skinConcerns      UserSkinConcern[]
 
   @@map("users")
 }
@@ -64,10 +65,70 @@ model UserOnboardingAnswer {
   @@map("user_onboarding_answers")
 }
 
+model Post {
+  id        Int      @id @default(autoincrement())
+  userId    String   @map("user_id") @db.Uuid
+  content   String?  @map("content")
+  imageUrl  String?  @map("image_url")
+  createdAt DateTime @default(now()) @map("created_at")
+  user      User     @relation(fields: [userId], references: [id])
+
+  @@map("posts")
+}
+
+model Comment {
+  id         Int      @id @default(autoincrement())
+  userId     String   @map("user_id") @db.Uuid
+  targetType String   @map("target_type")
+  targetId   Int      @map("target_id")
+  content    String   @map("content")
+  createdAt  DateTime @default(now()) @map("created_at")
+  user       User     @relation(fields: [userId], references: [id])
+
+  @@index([targetType, targetId])
+  @@map("comments")
+}
+
+model Like {
+  id         Int      @id @default(autoincrement())
+  userId     String   @map("user_id") @db.Uuid
+  targetType String   @map("target_type")
+  targetId   Int      @map("target_id")
+  createdAt  DateTime @default(now()) @map("created_at")
+  user       User     @relation(fields: [userId], references: [id])
+
+  @@unique([userId, targetType, targetId])
+  @@map("likes")
+}
+
 enum SkinType {
   OILY
   DRY
   COMBINATION
   SENSITIVE
   NORMAL
+}
+
+model Item {
+  id               Int      @id @default(autoincrement())
+  userId           String   @map("user_id") @db.Uuid
+  brand            String?
+  name             String?
+  category         String?
+  imageUrl         String?  @map("image_url")
+  price            Int?     @map("price")
+  expirationDate   DateTime?@map("expiration_date")
+  openingDate      DateTime?@map("opening_date")
+  paoMonths        Int?     @map("pao_months")
+  status           String?
+  isCurrentlyInUse Boolean? @map("is_currently_in_use")
+  usagePercentage  Int?     @map("usage_percentage")
+  colorVariation   String?  @map("color_variation")
+  createdAt        DateTime @default(now()) @map("created_at")
+  reminderEnabled  Boolean? @map("reminder_enabled")
+  reminderDate     DateTime?@map("reminder_date")
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@map("items")
 }
