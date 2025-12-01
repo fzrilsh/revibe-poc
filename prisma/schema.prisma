@@ -110,25 +110,41 @@ enum SkinType {
 }
 
 model Item {
-  id               Int      @id @default(autoincrement())
-  userId           String   @map("user_id") @db.Uuid
+  id               Int       @id @default(autoincrement())
+  userId           String    @map("user_id") @db.Uuid
   brand            String?
   name             String?
   category         String?
-  imageUrl         String?  @map("image_url")
-  price            Int?     @map("price")
-  expirationDate   DateTime?@map("expiration_date")
-  openingDate      DateTime?@map("opening_date")
-  paoMonths        Int?     @map("pao_months")
+  imageUrl         String?   @map("image_url")
+  price            Int?      @map("price")
+  expirationDate   DateTime? @map("expiration_date")
+  openingDate      DateTime? @map("opening_date")
+  paoMonths        Int?      @map("pao_months")
   status           String?
-  isCurrentlyInUse Boolean? @map("is_currently_in_use")
-  usagePercentage  Int?     @map("usage_percentage")
-  colorVariation   String?  @map("color_variation")
-  createdAt        DateTime @default(now()) @map("created_at")
-  reminderEnabled  Boolean? @map("reminder_enabled")
-  reminderDate     DateTime?@map("reminder_date")
+  isCurrentlyInUse Boolean?  @map("is_currently_in_use")
+  usagePercentage  Int?      @map("usage_percentage")
+  colorVariation   String?   @map("color_variation")
+  createdAt        DateTime  @default(now()) @map("created_at")
+  reminderEnabled  Boolean?  @map("reminder_enabled")
+  reminderDate     DateTime? @map("reminder_date")
 
   user User @relation(fields: [userId], references: [id])
 
+  reviews Review[]
+
   @@map("items")
+}
+
+model Review {
+  id          Int      @id @default(autoincrement())
+  itemId      Int      @map("item_id")
+  rating      Int
+  repurchase  Boolean? @map("repurchase")
+  usagePeriod String?  @map("usage_period")
+  content     String?  @map("content")
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  item Item @relation(fields: [itemId], references: [id])
+
+  @@map("reviews")
 }
