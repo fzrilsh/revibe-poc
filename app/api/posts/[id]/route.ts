@@ -1,0 +1,71 @@
+import { NextResponse } from 'next/server'
+import { findPostById, updatePost, deletePost } from '@/features/post/post.repo'
+import getCurrentUserFromRequest from '@/lib/getCurrentUser'
+import { buildPublicPost } from '@/features/post/buildPublicPost'
+import { userLiked } from '@/features/post/like.repository'
+import { listComments } from '@/features/post/comment.repository'
+import { buildPublicUser } from '@/features/auth/buildPublicUser'
+import { buildPublicUrl } from '@/lib/config'
+
+export async function GET(req: Request) {
+    const id = Number(req.url.split('/').pop())
+    const post = await findPostById(id)
+    if (!post) return NextResponse.json({ error: 'Not found' }, { status: 404 })
+
+    // Check if current user liked this post
+    const currentUser = await getCurrentUserFromRequest(req)
+    if (currentUser) {
+        const liked = await userLiked(currentUser.id, 'Post', post.id)
+            ; (post as any)._liked = liked
+    }
+
+    // attach comments for detailed view
+    const comments = await listComments('Post', post.id)
+    const publicComments = (comments ?? []).map((c: any) => ({
+        id: c.id,
+        content: c.content,
+        created_at: c.createdAt?.toISOString?.() ?? (c as any).created_at ?? new Date().toISOString(),
+        user: {
+            nickname: c.user.nickname,
+            profile_image: buildPublicUrl((c.user.profileImage ?? (c.user as any).profile_image) ?? null)
+        }
+    }))
+
+    return NextResponse.json({
+        status: 'success',
+        message: 'Post retrieved successfully',
+        data: { post: { ...buildPublicPost(post), liked: (post as any)._liked ?? false, comments: publicComments } }
+    })
+}
+
+export async function PATCH(req: Request) {
+    const user = await getCurrentUserFromRequest(req)
+    if (!user) return NextResponse.json({ error: 'Not authenticated' }, { status: 401 })
+
+    const id = Number(req.url.split('/').pop())
+    const body = await req.json()
+
+    const updated = await updatePost(id, user.id, { content: body.content ?? null, imageUrl: body.image_url ?? body.imageUrl ?? null })
+    if (!updated) return NextResponse.json({ error: 'Not found or not allowed' }, { status: 404 })
+
+    return NextResponse.json({
+        status: 'success',
+        message: 'Post updated successfully',
+        data: { post: buildPublicPost(updated) }
+    })
+}
+
+export async function DELETE(req: Request) {
+    const user = await getCurrentUserFromRequest(req)
+    if (!user) return NextResponse.json({ error: 'Not authenticated' }, { status: 401 })
+    const id = Number(req.url.split('/').pop())
+
+    const deleted = await deletePost(id, user.id)
+    if (!deleted) return NextResponse.json({ error: 'Not found or not allowed' }, { status: 404 })
+
+    return NextResponse.json({
+        status: 'success',
+        message: 'Post deleted successfully',
+        data: { post: buildPublicPost(deleted) }
+    })
+}
