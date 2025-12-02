@@ -4,7 +4,7 @@ import { findItemById } from '@/features/items/item.repository'
 import { createSupabaseClient } from '@/lib/config'
 import prisma from '@/lib/prisma'
 
-function mapReviewToSnake(r: any, creator?: any) {
+function mapReviewToSnake(r: any, creator?: any, likeCount = 0, commentCount = 0) {
     if (!r) return null
     return {
         id: r.id,
@@ -14,6 +14,8 @@ function mapReviewToSnake(r: any, creator?: any) {
         usage_period: r.usagePeriod ?? (r as any).usage_period ?? null,
         content: r.content ?? null,
         created_at: r.createdAt?.toISOString?.() ?? (r as any).created_at ?? null,
+        like_count: likeCount ?? 0,
+        comment_count: commentCount ?? 0,
         user: creator ? {
             nickname: creator.nickname ?? creator.username ?? null,
             image_url: creator.profileImage ?? (creator as any).profile_image ?? null,
@@ -33,9 +35,19 @@ export async function GET(req: Request) {
         const where: any = {}
         if (itemId) where.itemId = itemId
         const rows = await prismaReview.findMany({ where, orderBy: { createdAt: 'desc' }, take, skip, include: { item: { include: { user: true } } } })
+        const reviewIds = rows.map((r: any) => r.id)
+
+        // batch counts for likes and comments
+        const likeCountsArr = await Promise.all(reviewIds.map((rid: number) => prisma.like.count({ where: { targetType: 'review', targetId: rid } }).catch(() => 0)))
+        const commentCountsArr = await Promise.all(reviewIds.map((rid: number) => prisma.comment.count({ where: { targetType: 'review', targetId: rid } }).catch(() => 0)))
+
+        const likeById: Record<number, number> = {}
+        const commentById: Record<number, number> = {}
+        reviewIds.forEach((id: number, idx: number) => { likeById[id] = likeCountsArr[idx] ?? 0; commentById[id] = commentCountsArr[idx] ?? 0 })
+
         const out = rows.map((r: any) => {
             const creator = r?.item?.user ?? null
-            return mapReviewToSnake(r, creator)
+            return mapReviewToSnake(r, creator, likeById[r.id] ?? 0, commentById[r.id] ?? 0)
         })
         return NextResponse.json({ status: 'success', message: 'Reviews retrieved', data: { reviews: out } })
     }
@@ -64,10 +76,28 @@ export async function GET(req: Request) {
         (users ?? []).forEach((u: any) => { usersById[u.id] = u })
     }
 
+    // compute like/comment counts in batch via Supabase
+    const reviewIds = rows.map((r: any) => r.id)
+    let likesById: Record<number, number> = {}
+    if (reviewIds.length) {
+        const { data: likes } = await supabase.from('likes').select('target_id').in('target_id', reviewIds).eq('target_type', 'review');
+        const lmap = {} as Record<number, number>
+        (likes ?? []).forEach((l: any) => { lmap[l.target_id] = (lmap[l.target_id] ?? 0) + 1 });
+        likesById = lmap
+    }
+
+    let commentsById: Record<number, number> = {}
+    if (reviewIds.length) {
+        const { data: comments } = await supabase.from('comments').select('target_id').in('target_id', reviewIds).eq('target_type', 'review');
+        const cmap = {} as Record<number, number>
+        (comments ?? []).forEach((c: any) => { cmap[c.target_id] = (cmap[c.target_id] ?? 0) + 1 });
+        commentsById = cmap
+    }
+
     const out = rows.map((r: any) => {
         const item = itemById[r.item_id]
         const creator = item ? usersById[item.user_id] ?? null : null
-        return mapReviewToSnake(r, creator)
+        return mapReviewToSnake(r, creator, likesById[r.id] ?? 0, commentsById[r.id] ?? 0)
     })
 
     return NextResponse.json({ status: 'success', message: 'Reviews retrieved', data: { reviews: out } })
