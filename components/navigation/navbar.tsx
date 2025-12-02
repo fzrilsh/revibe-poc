@@ -39,7 +39,7 @@ interface NavItem {
 const navItems: NavItem[] = [
     { id: "home", label: "Home", icon: FiHome, href: "/" },
     { id: "directory", label: "Directory", customSvg: true, href: "/directory", groupPrefixes: ["/directory", "/gallery", "/directory/product"] },
-    { id: "activity", label: "Activity", icon: HiOutlineCamera, href: "/activity" },
+    { id: "activity", label: "Activity", icon: HiOutlineCamera, href: "/activity/challenge" },
     { id: "feed", label: "Feed", icon: FiHeart, href: "/feed/community" },
     { id: "profile", label: "Profile", icon: FiUser, href: "/profile" },
 ];
