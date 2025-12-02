@@ -4,6 +4,75 @@ import { findItemById } from '@/features/items/item.repository'
 import { createSupabaseClient } from '@/lib/config'
 import prisma from '@/lib/prisma'
 
+function mapReviewToSnake(r: any, creator?: any) {
+    if (!r) return null
+    return {
+        id: r.id,
+        item_id: r.itemId ?? r.item_id,
+        rating: r.rating,
+        repurchase: r.repurchase ?? (r as any).repurchase ?? null,
+        usage_period: r.usagePeriod ?? (r as any).usage_period ?? null,
+        content: r.content ?? null,
+        created_at: r.createdAt?.toISOString?.() ?? (r as any).created_at ?? null,
+        user: creator ? {
+            nickname: creator.nickname ?? creator.username ?? null,
+            image_url: creator.profileImage ?? (creator as any).profile_image ?? null,
+        } : null,
+    }
+}
+
+export async function GET(req: Request) {
+    const url = new URL(req.url)
+    const take = Number(url.searchParams.get('take') ?? '50')
+    const skip = Number(url.searchParams.get('skip') ?? '0')
+    const itemIdParam = url.searchParams.get('item_id') ?? url.searchParams.get('itemId')
+    const itemId = itemIdParam ? Number(itemIdParam) : undefined
+
+    const prismaReview = (prisma as any).review
+    if (prismaReview && typeof prismaReview.findMany === 'function') {
+        const where: any = {}
+        if (itemId) where.itemId = itemId
+        const rows = await prismaReview.findMany({ where, orderBy: { createdAt: 'desc' }, take, skip, include: { item: { include: { user: true } } } })
+        const out = rows.map((r: any) => {
+            const creator = r?.item?.user ?? null
+            return mapReviewToSnake(r, creator)
+        })
+        return NextResponse.json({ status: 'success', message: 'Reviews retrieved', data: { reviews: out } })
+    }
+
+    const supabase = createSupabaseClient()
+    let query = supabase.from('reviews').select('*').order('created_at', { ascending: false })
+    if (itemId) query = query.eq('item_id', itemId)
+    const start = Number(skip)
+    const end = start + Number(take) - 1
+    const { data, error } = await query.range(start, end)
+    if (error) return NextResponse.json({ status: 'error', message: error.message }, { status: 500 })
+
+    const rows = data ?? []
+    // fetch items to get owner ids
+    const itemIds = Array.from(new Set(rows.map((r: any) => r.item_id).filter(Boolean)))
+    const { data: items } = await supabase.from('items').select('id, user_id').in('id', itemIds);
+    const itemById: Record<number, any> = {};
+    (items ?? []).forEach((it: any) => { itemById[it.id] = it })
+
+    // fetch users for those items
+    const ownerIds = Array.from(new Set((items ?? []).map((it: any) => it.user_id).filter(Boolean)))
+    let usersById: Record<string, any> = {}
+    if (ownerIds.length) {
+        const { data: users } = await supabase.from('users').select('id, nickname, profile_image').in('id', ownerIds)
+        usersById = {};
+        (users ?? []).forEach((u: any) => { usersById[u.id] = u })
+    }
+
+    const out = rows.map((r: any) => {
+        const item = itemById[r.item_id]
+        const creator = item ? usersById[item.user_id] ?? null : null
+        return mapReviewToSnake(r, creator)
+    })
+
+    return NextResponse.json({ status: 'success', message: 'Reviews retrieved', data: { reviews: out } })
+}
+
 export async function POST(req: Request) {
     const user = await getCurrentUserFromRequest(req)
     if (!user) return NextResponse.json({ status: 'error', message: 'Not authenticated' }, { status: 401 })
