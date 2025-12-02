@@ -10,7 +10,7 @@ export default function Header() {
                 <Image src={"/logo-revibe.svg"} fill alt="Revibe Logo" />
             </div>
             <div className="relative">
-                <span className="absolute -top-0.5 right-0.5 w-2 h-2 bg-[#FF8080] rounded-full animate-pulse" />
+                <span className="absolute -top-0.5 right-0.5 w-2 h-2 bg-cerise-red rounded-full animate-pulse" />
                 <LuBell className="text-2xl" />
             </div>
         </header>
