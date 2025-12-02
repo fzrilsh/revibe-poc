@@ -10,12 +10,25 @@ function getCookie(req: NextRequest, name: string) {
 export function middleware(req: NextRequest) {
     const { pathname } = req.nextUrl;
 
-    // Only guard /registration route
-    if (pathname.startsWith("/registration")) {
-        const token = getCookie(req, "rv_token");
-        const introSeen = req.cookies.get("revibe_intro_seen")?.value;
+    const token = getCookie(req, "rv_token");
+    const introSeen = req.cookies.get("revibe_intro_seen")?.value;
 
-        // If authenticated, redirect to home
+    // Public routes that don't need authentication or intro check
+    const publicRoutes = ["/splash", "/opening"];
+    const isPublicRoute = publicRoutes.some(route => pathname.startsWith(route));
+    
+    // Allow public routes without restrictions
+    if (isPublicRoute) {
+        // If already authenticated, redirect to home
+        if (token) {
+            return NextResponse.redirect(new URL("/", req.url));
+        }
+        return NextResponse.next();
+    }
+
+    // Registration pages - require intro seen
+    if (pathname.startsWith("/registration")) {
+        // If already authenticated, redirect to home
         if (token) {
             return NextResponse.redirect(new URL("/", req.url));
         }
@@ -23,12 +36,39 @@ export function middleware(req: NextRequest) {
         if (!introSeen) {
             return NextResponse.redirect(new URL("/splash", req.url));
         }
+        return NextResponse.next();
     }
 
-    // ...existing code for other routes if needed
-    return NextResponse.next();
+    // Onboarding pages - allow access even without full auth
+    if (pathname.startsWith("/onboarding")) {
+        return NextResponse.next();
+    }
+
+    // For all other pages (home, directory, feed, etc)
+    // If authenticated, allow access
+    if (token) {
+        return NextResponse.next();
+    }
+
+    // Not authenticated - check if intro seen
+    if (!introSeen) {
+        return NextResponse.redirect(new URL("/splash", req.url));
+    }
+
+    // Intro seen but not authenticated - redirect to registration
+    return NextResponse.redirect(new URL("/registration", req.url));
 }
 
 export const config = {
-    matcher: ["/registration"],
+    matcher: [
+        /*
+         * Match all request paths except:
+         * - api (API routes)
+         * - _next/static (static files)
+         * - _next/image (image optimization files)
+         * - favicon.ico (favicon file)
+         * - public files (images, etc)
+         */
+        "/((?!api|_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico)$).*)",
+    ],
 };

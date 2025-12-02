@@ -10,6 +10,8 @@ import { PurchaseMotivationStep } from "./_components/steps/PurchaseMotivationSt
 import { ExpiryCheckStep } from "./_components/steps/ExpiryCheckStep";
 import { BeautyGoalStep } from "./_components/steps/BeautyGoalStep";
 import { CompletionStep } from "./_components/steps/CompletionStep";
+import { AnimatePresence, motion } from "motion/react";
+import { fadeIn, fadeUp } from "@/assets/animations";
 
 const steps = [WelcomeStep, ProductCountStep, PurchaseMotivationStep, ExpiryCheckStep, BeautyGoalStep, CompletionStep];
 const total = steps.length - 1;
@@ -21,7 +23,7 @@ export default function OnboardingPage() {
     const CurrentStep = steps[index];
     const router = useRouter();
 
-    // Fast guard: require intro seen, block authenticated users
+    // Fast guard: require intro seen cookie, block authenticated users
     useEffect(() => {
         try {
             const hasToken = document.cookie.split(";").some((c) => c.trim().startsWith("rv_token="));
@@ -29,8 +31,10 @@ export default function OnboardingPage() {
                 window.location.href = "/";
                 return;
             }
-            const hasSeenIntro = localStorage.getItem("revibe_intro_seen");
-            if (!hasSeenIntro) {
+            const hasSeenIntroCookie = document.cookie
+                .split(";")
+                .some((c) => c.trim().startsWith("revibe_intro_seen="));
+            if (!hasSeenIntroCookie) {
                 router.push("/splash");
                 return;
             }
@@ -65,14 +69,22 @@ export default function OnboardingPage() {
     };
 
     return (
-        <main className="h-screen px-4 flex flex-col bg-onboarding py-4">
-            {index < total && <NavigationHeader currentStep={index} totalSteps={total} onBack={handleBack} canGoBack={index > 0} />}
+        <motion.main {...fadeIn} className="h-screen px-4 flex flex-col bg-onboarding py-4">
+            {index < total && (
+                <motion.div {...fadeUp}>
+                    <NavigationHeader currentStep={index} totalSteps={total} onBack={handleBack} canGoBack={index > 0} />
+                </motion.div>
+            )}
             <div className="flex-1 overflow-y-auto py-4">
-                <CurrentStep onNext={handleNext} />
+                <AnimatePresence mode="wait">
+                    <motion.div key={index} {...fadeUp}>
+                        <CurrentStep onNext={handleNext} />
+                    </motion.div>
+                </AnimatePresence>
             </div>
             {checking && (
-                <div className="mt-auto py-3 w-full flex items-center justify-center text-sm text-gray-500">Loading...</div>
+                <motion.div {...fadeUp} className="mt-auto py-3 w-full flex items-center justify-center text-sm text-gray-500">Loading...</motion.div>
             )}
-        </main>
+        </motion.main>
     );
 }

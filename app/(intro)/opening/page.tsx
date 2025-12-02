@@ -5,6 +5,8 @@ import { useRouter } from "next/navigation";
 import { WelcomeStep } from "./_components/steps/WelcomeStep";
 import { FeaturesStep } from "./_components/steps/FeaturesStep";
 import { CommunityStep } from "./_components/steps/CommunityStep";
+import { AnimatePresence, motion } from "motion/react";
+import { fadeIn, fadeUp } from "@/assets/animations";
 
 const steps = [WelcomeStep, FeaturesStep, CommunityStep];
 
@@ -22,13 +24,7 @@ export default function OpeningPage() {
                 window.location.href = "/";
                 return;
             }
-            const hasSeenIntro = localStorage.getItem("revibe_intro_seen");
-            if (hasSeenIntro) {
-                // intro already seen -> skip opening, go to onboarding
-                router.push("/onboarding");
-                return;
-            }
-            // else: show opening steps, and mark seen when completed in handleNext
+            // Just show the opening steps - user came here from splash
             setTimeout(() => setChecking(false), 0);
         } catch {}
     }, [router]);
@@ -37,7 +33,7 @@ export default function OpeningPage() {
         if (index < steps.length - 1) {
             setIndex((i) => i + 1);
         } else {
-            // Selesai opening, lanjut ke onboarding
+            // Selesai opening, lanjut ke registration
             router.push("/onboarding");
         }
     };
@@ -45,13 +41,17 @@ export default function OpeningPage() {
     const CurrentStep = steps[index];
 
     return (
-        <main className="h-screen flex flex-col">
-            <CurrentStep onNext={handleNext} currentStep={index} />
+        <motion.main {...fadeIn} className="h-screen flex flex-col">
+            <AnimatePresence mode="wait">
+                <motion.div key={index} {...fadeUp} className="flex-1 flex flex-col">
+                    <CurrentStep onNext={handleNext} currentStep={index} />
+                </motion.div>
+            </AnimatePresence>
             {checking && (
-                <div className="mt-auto py-3 w-full flex items-center justify-center text-sm text-gray-500">
+                <motion.div {...fadeUp} className="mt-auto py-3 w-full flex items-center justify-center text-sm text-gray-500">
                     Loading...
-                </div>
+                </motion.div>
             )}
-        </main>
+        </motion.main>
     );
 }

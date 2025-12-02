@@ -8,6 +8,8 @@ import { ProfileSetupStep, StepData } from "./_components/steps/ProfileSetupStep
 import { SkinTypeStep } from "./_components/steps/SkinTypeStep";
 import { SkinConcernsStep } from "./_components/steps/SkinConcernsStep";
 import { CompletionStep } from "./_components/steps/CompletionStep";
+import { AnimatePresence, motion } from "motion/react";
+import { fadeIn, fadeUp } from "@/assets/animations";
 
 const steps = [ProfileSetupStep, SkinTypeStep, SkinConcernsStep, CompletionStep];
 const total = steps.length - 1;
@@ -17,11 +19,11 @@ export default function RegistrationPage() {
     const [answers, setAnswers] = useState<Record<number, StepData | string | string[]>>({});
     const [checking, setChecking] = useState(true);
 
-    const CurrentStep = steps[index];
+    const CurrentStep = steps[index] as React.ComponentType<{ onNext: (answer: StepData | string | string[]) => void }>;
     const isCompletion = index === total;
     const router = useRouter();
 
-    // Fast guard: authenticated -> home; not intro seen -> splash
+    // Fast guard: authenticated -> home; require intro seen cookie -> else splash
     useEffect(() => {
         try {
             const hasToken = document.cookie.split(";").some((c) => c.trim().startsWith("rv_token="));
@@ -29,8 +31,10 @@ export default function RegistrationPage() {
                 window.location.href = "/";
                 return;
             }
-            const hasSeenIntro = localStorage.getItem("revibe_intro_seen");
-            if (!hasSeenIntro) {
+            const hasSeenIntroCookie = document.cookie
+                .split(";")
+                .some((c) => c.trim().startsWith("revibe_intro_seen="));
+            if (!hasSeenIntroCookie) {
                 router.push("/splash");
                 return;
             }
@@ -128,12 +132,28 @@ export default function RegistrationPage() {
     };
 
     return (
-        <main className={`min-h-screen h-full p-4 flex-center flex-col w-full ${isCompletion ? "justify-center" : "justify-start"}`}>
-            {index < total && <NavigationHeader currentStep={index} totalSteps={total} onBack={handleBack} canGoBack={index > 0} />}
-            <div className="flex-1 py-4 w-full flex flex-col items-center gap-4">{isCompletion ? <CompletionStep onNext={submitRegistration} /> : <CurrentStep onNext={handleNext} />}</div>
-            {checking && (
-                <div className="mt-auto py-3 w-full flex items-center justify-center text-sm text-gray-500">Loading...</div>
+        <motion.main {...fadeIn} className={`min-h-screen h-full p-4 flex-center flex-col w-full ${isCompletion ? "justify-center" : "justify-start"}`}>
+            {index < total && (
+                <motion.div {...fadeUp} className="w-full">
+                    <NavigationHeader currentStep={index} totalSteps={total} onBack={handleBack} canGoBack={index > 0} />
+                </motion.div>
             )}
-        </main>
+            <div className="flex-1 py-4 w-full flex flex-col items-center gap-4">
+                <AnimatePresence mode="wait">
+                    {isCompletion ? (
+                        <motion.div key="completion" {...fadeUp} className="w-full">
+                            <CompletionStep onNext={submitRegistration} />
+                        </motion.div>
+                    ) : (
+                        <motion.div key={index} {...fadeUp} className="w-full">
+                            <CurrentStep onNext={handleNext} />
+                        </motion.div>
+                    )}
+                </AnimatePresence>
+            </div>
+            {checking && (
+                <motion.div {...fadeUp} className="mt-auto py-3 w-full flex items-center justify-center text-sm text-gray-500">Loading...</motion.div>
+            )}
+        </motion.main>
     );
 }

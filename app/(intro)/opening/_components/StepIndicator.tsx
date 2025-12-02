@@ -1,3 +1,5 @@
+import { motion } from "motion/react";
+
 interface StepIndicatorProps {
     totalSteps: number;
     currentStep: number;
@@ -5,7 +7,12 @@ interface StepIndicatorProps {
 
 export function StepIndicator({ totalSteps, currentStep }: StepIndicatorProps) {
     return (
-        <div className="flex-center flex-row gap-3">
+        <motion.div
+            initial={{ opacity: 0, y: 6 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.2 }}
+            className="flex-center flex-row gap-3"
+        >
             {Array.from({ length: totalSteps }).map((_, index) => (
                 <div
                     key={index}
@@ -14,6 +21,6 @@ export function StepIndicator({ totalSteps, currentStep }: StepIndicatorProps) {
                     }`}
                 />
             ))}
-        </div>
+        </motion.div>
     );
 }

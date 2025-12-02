@@ -29,8 +29,8 @@ export default function SplashPage() {
             setLeaving(true);
             // Push setelah animasi keluar selesai
             const navTimer = setTimeout(() => {
-                // Mark intro seen so opening can be skipped next time
-                try { localStorage.setItem("revibe_intro_seen", "1"); } catch {}
+                // Mark intro seen with cookie so middleware can detect it
+                document.cookie = "revibe_intro_seen=true; path=/; max-age=31536000"; // 1 year
                 router.push("/opening");
             }, EXIT_DURATION);
             return () => clearTimeout(navTimer);
