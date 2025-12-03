@@ -10,7 +10,13 @@ interface Post {
         skin_type?: string[];
     };
     content: string;
-    image?: string[];
+    item?: {
+        id?: number;
+        brand?: string | null;
+        name?: string | null;
+        category?: string | null;
+        image_url?: string | null;
+    };
     rating?: number;
     badge?: {
         text: string;
@@ -75,9 +81,9 @@ export function ReviewCard({ post, onLike, isLiked }: ReviewCardProps) {
                 )}
 
                 {/* Review Content with Image Side by Side */}
-                <div className="px-4 pb-3 flex gap-3">
+                <div className="px-4 pb-3 flex gap-6">
                     <div className="flex-1">
-                        <p className="text-sm leading-relaxed text-gray-800 mb-3">{reviewText}</p>
+                        <p className="text-sm leading-relaxed text-gray-800 mb-3 text-justify">{reviewText}</p>
                         {post.repurchase && (
                             <div className="space-y-0.5 text-xs">
                                 <p className="text-gray-700">
@@ -91,11 +97,11 @@ export function ReviewCard({ post, onLike, isLiked }: ReviewCardProps) {
                     </div>
 
                     {/* Product Image - Smaller on the side */}
-                    {post.image && (
-                        <div className="w-24 h-24 shrink-0">
-                            <div className={`overflow-hidden w-20 h-20`}>
+                    {post.item?.image_url && (
+                        <div className="w-24 h-24 shrink-0 ">
+                            <div className={`overflow-hidden ml-auto w-20 h-20`}>
                                 <div className="w-full h-full bg-linear-to-br from-purple-50 to-pink-50 rounded-lg overflow-hidden flex items-center justify-center">
-                                    <Image src={post.image[0]} alt={post.author.name} width={96} height={96} className="object-cover w-full h-full" />
+                                    <Image src={post.item.image_url || ""} alt={post.author.name} width={96} height={96} className="object-cover w-full h-full" />
                                 </div>
                             </div>
                         </div>
