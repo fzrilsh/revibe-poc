@@ -38,8 +38,8 @@ export async function GET(req: Request) {
         const creator = r?.item?.user ?? null
 
         // counts
-        const likeCount = await (prisma as any).like.count({ where: { targetType: 'review', targetId: id } }).catch(() => 0)
-        const commentRows = await (prisma as any).comment.findMany({ where: { targetType: 'review', targetId: id }, orderBy: { createdAt: 'desc' }, include: { user: true } }).catch(() => [])
+        const likeCount = await (prisma as any).like.count({ where: { targetType: 'Review', targetId: id } }).catch(() => 0)
+        const commentRows = await (prisma as any).comment.findMany({ where: { targetType: 'Review', targetId: id }, orderBy: { createdAt: 'desc' }, include: { user: true } }).catch(() => [])
         const commentCount = (commentRows ?? []).length
 
         const comments = (commentRows ?? []).map((c: any) => ({
@@ -68,19 +68,37 @@ export async function GET(req: Request) {
     }
 
     // likes count via supabase
-    const { data: likes } = await supabase.from('likes').select('id').eq('target_type', 'review').eq('target_id', id);
+    const { data: likes } = await supabase.from('likes').select('id').eq('target_type', 'Review').eq('target_id', id);
     const likeCount = (likes ?? []).length
 
-    // comments via supabase
-    const { data: commentsRows } = await supabase.from('comments').select('*').eq('target_type', 'review').eq('target_id', id).order('created_at', { ascending: false });
-    const commentsList = commentsRows ?? []
+    // comments via supabase (with error handling + Prisma fallback)
+    const { data: commentsRows, error: commentsError } = await supabase.from('comments').select('*').eq('target_type', 'Review').eq('target_id', id).order('created_at', { ascending: false });
+    let commentsList = commentsRows ?? []
     let comments: any[] = []
-    if (commentsList.length) {
-        const userIds = Array.from(new Set(commentsList.map((c: any) => c.user_id).filter(Boolean)))
-        const { data: users } = await supabase.from('users').select('id, nickname, profile_image').in('id', userIds);
-        const usersById: Record<string, any> = {};
-        (users ?? []).forEach((u: any) => { usersById[u.id] = u })
-        comments = commentsList.map((c: any) => ({ id: c.id, content: c.content, created_at: c.created_at ?? (c.createdAt?.toISOString?.() ?? null), user: usersById[c.user_id] ? { username: usersById[c.user_id].nickname ?? usersById[c.user_id].username ?? null, image_url: usersById[c.user_id].profile_image ?? usersById[c.user_id].profileImage ?? null } : null }))
+
+    if (commentsError) {
+        // attempt Prisma fallback for comments
+        try {
+            const prismaComments = await (prisma as any).comment.findMany({ where: { targetType: 'Review', targetId: id }, orderBy: { createdAt: 'desc' }, include: { user: true } })
+            comments = (prismaComments ?? []).map((c: any) => ({ id: c.id, content: c.content, created_at: c.createdAt?.toISOString?.() ?? c.created_at ?? null, user: c.user ? { username: c.user.nickname ?? c.user.username ?? null, image_url: c.user.profileImage ?? c.user.profile_image ?? null } : null }))
+        } catch (e) {
+            comments = []
+        }
+    } else {
+        // normalize and join users
+        commentsList = commentsList ?? []
+        if (commentsList.length) {
+            const userIds = Array.from(new Set(commentsList.map((c: any) => c.user_id ?? c.userId).filter(Boolean)))
+            const { data: users } = await supabase.from('users').select('id, nickname, profile_image').in('id', userIds);
+            const usersById = {} as Record<string, any>;
+            (users ?? []).forEach((u: any) => { usersById[u.id] = u })
+            comments = commentsList.map((c: any) => ({
+                id: c.id,
+                content: c.content ?? c.body ?? null,
+                created_at: c.created_at ?? (c.createdAt?.toISOString?.() ?? null),
+                user: usersById[c.user_id ?? c.userId] ? { username: usersById[c.user_id ?? c.userId].nickname ?? usersById[c.user_id ?? c.userId].username ?? null, image_url: usersById[c.user_id ?? c.userId].profile_image ?? usersById[c.user_id ?? c.userId].profileImage ?? null } : null,
+            }))
+        }
     }
 
     const commentCount = comments.length
