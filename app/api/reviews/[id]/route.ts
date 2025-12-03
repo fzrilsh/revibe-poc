@@ -3,8 +3,9 @@ import getCurrentUserFromRequest from '@/lib/getCurrentUser'
 import prisma from '@/lib/prisma'
 import { createSupabaseClient } from '@/lib/config'
 import { findItemById } from '@/features/items/item.repository'
+import { buildPublicItem } from '@/features/items/buildPublicItem'
 
-function mapReviewToSnakeWithCreator(r: any, creator?: any, likeCount = 0, commentCount = 0, comments: any[] = []) {
+function mapReviewToSnakeWithCreator(r: any, creator?: any, likeCount = 0, commentCount = 0, comments: any[] = [], item?: any) {
     if (!r) return null
     return {
         id: r.id,
@@ -17,8 +18,10 @@ function mapReviewToSnakeWithCreator(r: any, creator?: any, likeCount = 0, comme
         like_count: likeCount ?? 0,
         comment_count: commentCount ?? 0,
         comments: comments ?? [],
+        item: item ? buildPublicItem(item) : null,
         user: creator ? {
             username: creator.nickname ?? creator.username ?? null,
+            skin_type: creator.skinType ?? creator.skin_type,
             image_url: creator.profileImage ?? (creator as any).profile_image ?? null,
         } : null,
     }
@@ -46,7 +49,7 @@ export async function GET(req: Request) {
             user: c.user ? { username: c.user.nickname ?? c.user.username ?? null, image_url: c.user.profileImage ?? c.user.profile_image ?? null } : null,
         }))
 
-        return NextResponse.json({ status: 'success', message: 'Review retrieved', data: { review: mapReviewToSnakeWithCreator(r, creator, likeCount, commentCount, comments) } })
+        return NextResponse.json({ status: 'success', message: 'Review retrieved', data: { review: mapReviewToSnakeWithCreator(r, creator, likeCount, commentCount, comments, r.item) } })
     }
 
     const supabase = createSupabaseClient()
@@ -56,25 +59,25 @@ export async function GET(req: Request) {
     const r = (rows as any)[0]
 
     // find item->owner and user
-        const { data: items } = await supabase.from('items').select('id, user_id').eq('id', r.item_id).limit(1);
+    const { data: items } = await supabase.from('items').select('id, user_id').eq('id', r.item_id).limit(1);
     const item = (items ?? [])[0] ?? null
     let creator: any = null
     if (item && item.user_id) {
-            const { data: users } = await supabase.from('users').select('id, nickname, profile_image').eq('id', item.user_id).limit(1);
+        const { data: users } = await supabase.from('users').select('id, nickname, profile_image').eq('id', item.user_id).limit(1);
         creator = (users ?? [])[0] ?? null
     }
 
     // likes count via supabase
-        const { data: likes } = await supabase.from('likes').select('id').eq('target_type', 'review').eq('target_id', id);
+    const { data: likes } = await supabase.from('likes').select('id').eq('target_type', 'review').eq('target_id', id);
     const likeCount = (likes ?? []).length
 
     // comments via supabase
-        const { data: commentsRows } = await supabase.from('comments').select('*').eq('target_type', 'review').eq('target_id', id).order('created_at', { ascending: false });
+    const { data: commentsRows } = await supabase.from('comments').select('*').eq('target_type', 'review').eq('target_id', id).order('created_at', { ascending: false });
     const commentsList = commentsRows ?? []
     let comments: any[] = []
     if (commentsList.length) {
         const userIds = Array.from(new Set(commentsList.map((c: any) => c.user_id).filter(Boolean)))
-            const { data: users } = await supabase.from('users').select('id, nickname, profile_image').in('id', userIds);
+        const { data: users } = await supabase.from('users').select('id, nickname, profile_image').in('id', userIds);
         const usersById: Record<string, any> = {};
         (users ?? []).forEach((u: any) => { usersById[u.id] = u })
         comments = commentsList.map((c: any) => ({ id: c.id, content: c.content, created_at: c.created_at ?? (c.createdAt?.toISOString?.() ?? null), user: usersById[c.user_id] ? { username: usersById[c.user_id].nickname ?? usersById[c.user_id].username ?? null, image_url: usersById[c.user_id].profile_image ?? usersById[c.user_id].profileImage ?? null } : null }))
@@ -82,7 +85,7 @@ export async function GET(req: Request) {
 
     const commentCount = comments.length
 
-    return NextResponse.json({ status: 'success', message: 'Review retrieved', data: { review: mapReviewToSnakeWithCreator(r, creator, likeCount, commentCount, comments) } })
+    return NextResponse.json({ status: 'success', message: 'Review retrieved', data: { review: mapReviewToSnakeWithCreator(r, creator, likeCount, commentCount, comments, item) } })
 }
 
 export async function DELETE(req: Request) {
@@ -101,11 +104,11 @@ export async function DELETE(req: Request) {
         const ownerId = item.userId ?? (item as any).user_id
         if (ownerId !== user.id) return NextResponse.json({ status: 'error', message: 'Not allowed' }, { status: 403 })
         const deleted = await prismaReview.delete({ where: { id } })
-            return NextResponse.json({ status: 'success', message: 'Review deleted', data: { review: deleted } })
-        }
+        return NextResponse.json({ status: 'success', message: 'Review deleted', data: { review: deleted } })
+    }
 
-        const supabase = createSupabaseClient()
-        const { data: rows } = await supabase.from('reviews').select('*').eq('id', id).limit(1)
+    const supabase = createSupabaseClient()
+    const { data: rows } = await supabase.from('reviews').select('*').eq('id', id).limit(1)
     if (!rows || (rows as any).length === 0) return NextResponse.json({ status: 'error', message: 'Not found' }, { status: 404 })
     const r = (rows as any)[0]
     const item = await findItemById(r.item_id)

@@ -1,10 +1,11 @@
 import { NextResponse } from 'next/server'
 import getCurrentUserFromRequest from '@/lib/getCurrentUser'
 import { findItemById } from '@/features/items/item.repository'
+import { buildPublicItem } from '@/features/items/buildPublicItem'
 import { createSupabaseClient } from '@/lib/config'
 import prisma from '@/lib/prisma'
 
-function mapReviewToSnake(r: any, creator?: any, likeCount = 0, commentCount = 0) {
+function mapReviewToSnake(r: any, creator?: any, likeCount = 0, commentCount = 0, item?: any) {
     if (!r) return null
     return {
         id: r.id,
@@ -16,6 +17,7 @@ function mapReviewToSnake(r: any, creator?: any, likeCount = 0, commentCount = 0
         created_at: r.createdAt?.toISOString?.() ?? (r as any).created_at ?? null,
         like_count: likeCount ?? 0,
         comment_count: commentCount ?? 0,
+        item: item ? buildPublicItem(item) : null,
         user: creator ? {
             nickname: creator.nickname ?? creator.username ?? null,
             image_url: creator.profileImage ?? (creator as any).profile_image ?? null,
@@ -47,7 +49,7 @@ export async function GET(req: Request) {
 
         const out = rows.map((r: any) => {
             const creator = r?.item?.user ?? null
-            return mapReviewToSnake(r, creator, likeById[r.id] ?? 0, commentById[r.id] ?? 0)
+            return mapReviewToSnake(r, creator, likeById[r.id] ?? 0, commentById[r.id] ?? 0, r.item)
         })
         return NextResponse.json({ status: 'success', message: 'Reviews retrieved', data: { reviews: out } })
     }
@@ -97,7 +99,7 @@ export async function GET(req: Request) {
     const out = rows.map((r: any) => {
         const item = itemById[r.item_id]
         const creator = item ? usersById[item.user_id] ?? null : null
-        return mapReviewToSnake(r, creator, likesById[r.id] ?? 0, commentsById[r.id] ?? 0)
+        return mapReviewToSnake(r, creator, likesById[r.id] ?? 0, commentsById[r.id] ?? 0, item)
     })
 
     return NextResponse.json({ status: 'success', message: 'Reviews retrieved', data: { reviews: out } })
