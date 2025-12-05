@@ -109,43 +109,6 @@ enum SkinType {
   NORMAL
 }
 
-model Post {
-  id        Int      @id @default(autoincrement())
-  userId    String   @map("user_id") @db.Uuid
-  user      User     @relation(fields: [userId], references: [id])
-  content   String?  @map("content")
-  imageUrl  String?  @map("image_url")
-  createdAt DateTime @default(now()) @map("created_at")
-
-  @@map("posts")
-}
-
-model Comment {
-  id        Int      @id @default(autoincrement())
-  userId    String   @map("user_id") @db.Uuid
-  user      User     @relation(fields: [userId], references: [id])
-  targetType String  @map("target_type")
-  targetId  Int      @map("target_id")
-  content   String   @map("content")
-  createdAt DateTime @default(now()) @map("created_at")
-
- 
-  @@index([targetType, targetId])
-  @@map("comments")
-}
-
-model Like {
-  id        Int      @id @default(autoincrement())
-  userId    String   @map("user_id") @db.Uuid
-  user      User     @relation(fields: [userId], references: [id])
-  targetType String  @map("target_type")
-  targetId  Int      @map("target_id")
-  createdAt DateTime @default(now()) @map("created_at")
-
-  @@unique([userId, targetType, targetId])
-  @@map("likes")
-}
-
 model Item {
   id               Int       @id @default(autoincrement())
   userId           String    @map("user_id") @db.Uuid
