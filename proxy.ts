@@ -7,7 +7,7 @@ function getCookie(req: NextRequest, name: string) {
     return cookie?.value ?? null;
 }
 
-export function middleware(req: NextRequest) {
+export function proxy(req: NextRequest) {
     const { pathname } = req.nextUrl;
 
     const token = getCookie(req, "rv_token");
