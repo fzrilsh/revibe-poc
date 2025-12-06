@@ -69,13 +69,13 @@ export default function OnboardingPage() {
     };
 
     return (
-        <motion.main {...fadeIn} className="h-screen px-4 flex flex-col bg-onboarding py-4">
+        <motion.main {...fadeIn} className="h-screen px-4 flex flex-col bg-onboarding py-4 scrollbar-hide">
             {index < total && (
                 <motion.div {...fadeUp}>
                     <NavigationHeader currentStep={index} totalSteps={total} onBack={handleBack} canGoBack={index > 0} />
                 </motion.div>
             )}
-            <div className="flex-1 overflow-y-auto py-4">
+            <div className="flex-1 scrollbar-hide overflow-y-auto py-4">
                 <AnimatePresence mode="wait">
                     <motion.div key={index} {...fadeUp}>
                         <CurrentStep onNext={handleNext} />
