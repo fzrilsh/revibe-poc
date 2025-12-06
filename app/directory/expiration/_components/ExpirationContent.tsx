@@ -71,7 +71,7 @@ export default function ExpirationContent() {
                             image: item.image_url || "/products/placeholder.svg",
                         };
                     })
-                    .filter((p): p is ExpiringProduct => p !== null);
+                    .filter((p: ExpiringProduct | null): p is ExpiringProduct => p !== null);
 
                 if (active) {
                     setProducts(expiring);
