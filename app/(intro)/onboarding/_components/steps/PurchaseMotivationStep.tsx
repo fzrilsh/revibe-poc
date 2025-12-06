@@ -16,7 +16,7 @@ const options: Option[] = [
     { id: "love", emoji: "💄", label: "When the price or promo looks too good to miss" },
 ];
 
-export function PurchaseMotivationStep({ onNext }: StepProps) {
+export function PurchaseMotivationStep({ onNext }: StepProps<string>) {
     const [selected, setSelected] = useState<string | null>(null);
 
     const handleSelect = (optionId: string) => {

@@ -15,7 +15,7 @@ const options: Option[] = [
     { id: "too-many", emoji: "🤔", label: "I'm not sure..." },
 ];
 
-export function ExpiryCheckStep({ onNext }: StepProps) {
+export function ExpiryCheckStep({ onNext }: StepProps<string>) {
     const [selected, setSelected] = useState<string | null>(null);
 
     const handleSelect = (optionId: string) => {

@@ -15,7 +15,7 @@ const options: Option[] = [
     { id: "too-many", emoji: "🥴", label: "Too many products, not enough clarity" },
 ];
 
-export function WelcomeStep({ onNext }: StepProps) {
+export function WelcomeStep({ onNext }: StepProps<string>) {
     const [selected, setSelected] = useState<string | null>(null);
 
     const handleSelect = (optionId: string) => {

@@ -16,7 +16,7 @@ const options: Option[] = [
     { id: "love", emoji: "❤️", label: "> 50 products" },
 ];
 
-export function ProductCountStep({ onNext }: StepProps) {
+export function ProductCountStep({ onNext }: StepProps<string>) {
     const [selected, setSelected] = useState<string | null>(null);
 
     const handleSelect = (optionId: string) => {

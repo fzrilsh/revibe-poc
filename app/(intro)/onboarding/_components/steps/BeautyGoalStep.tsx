@@ -15,7 +15,7 @@ const options: Option[] = [
     { id: "too-many", emoji: "🌱", label: "Sustainable and fulfilling — not just consuming" },
 ];
 
-export function BeautyGoalStep({ onNext }: StepProps) {
+export function BeautyGoalStep({ onNext }: StepProps<string>) {
     const [selected, setSelected] = useState<string | null>(null);
 
     const handleSelect = (optionId: string) => {
