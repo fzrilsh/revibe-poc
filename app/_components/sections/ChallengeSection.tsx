@@ -6,16 +6,13 @@ const challenges = [
         id: "minimalist-30",
         title: "30 Days\nMinimalist",
         img: "/home/challenge/minimalist.svg",
+        url: "/activity/challenge/minimalist-30"
     },
     {
         id: "skin-fasting-14",
         title: "14 Days Skin\nFasting",
         img: "/home/challenge/skin_fasting.svg",
-    },
-    {
-        id: "minimalist-5",
-        title: "5 Days\nMinimalist",
-        img: "/home/challenge/minimalist.svg",
+        url: "/activity/challenge/skin-fasting-14"
     },
 ];
 
@@ -25,7 +22,7 @@ export function ChallengeSection() {
             <h2 className="font-semibold">Ongoing challenge</h2>
             <div className="flex gap-4 w-full overflow-x-auto scrollbar-none scrollbar-hide pb-2">
                 {challenges.map((c) => (
-                    <div key={c.id} className="relative min-w-60 h-[120px] rounded-2xl p-4 flex flex-col justify-between text-white bg-white overflow-hidden">
+                    <div key={c.id} onClick={() => window.location.href = c.url} className="relative cursor-pointer min-w-60 h-[120px] rounded-2xl p-4 flex flex-col justify-between text-white bg-white overflow-hidden">
                         <div className="z-20">
                             {c.title.split("\n").map((line, i) => (
                                 <h3 key={i} className="font-semibold leading-snug">

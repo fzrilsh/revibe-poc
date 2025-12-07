@@ -132,20 +132,20 @@ export default function RegistrationPage() {
     };
 
     return (
-        <motion.main {...fadeIn} className={`min-h-screen h-full p-4 flex-center flex-col w-full ${isCompletion ? "justify-center" : "justify-start"}`}>
+        <motion.main {...fadeIn} className={`min-h-screen h-screen p-4 flex-center flex-col w-full ${isCompletion ? "justify-center" : "justify-start"}`}>
             {index < total && (
                 <motion.div {...fadeUp} className="w-full">
                     <NavigationHeader currentStep={index} totalSteps={total} onBack={handleBack} canGoBack={index > 0} />
                 </motion.div>
             )}
-            <div className="flex-1 py-4 w-full flex flex-col items-center gap-4">
+            <div className="flex-1 py-4 w-full h-full flex flex-col items-center gap-4">
                 <AnimatePresence mode="wait">
                     {isCompletion ? (
-                        <motion.div key="completion" {...fadeUp} className="w-full">
+                        <motion.div key="completion" {...fadeUp} className="w-full h-full">
                             <CompletionStep onNext={submitRegistration} />
                         </motion.div>
                     ) : (
-                        <motion.div key={index} {...fadeUp} className="w-full">
+                        <motion.div key={index} {...fadeUp} className="w-full h-full">
                             <CurrentStep onNext={handleNext} />
                         </motion.div>
                     )}

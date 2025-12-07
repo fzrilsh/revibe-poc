@@ -1,12 +1,31 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import NavigationHeader from "@features/NavigationHeader";
 import ProductImage from "./sections/ProductImage";
 import ProductHeader from "./sections/ProductHeader";
 import ProductInfo from "./sections/ProductInfo";
 import ActionButtons from "./sections/ActionButtons";
 import ShareModal from "./sections/ShareModal";
+import { LuArrowLeft } from "react-icons/lu";
+import { RiEdit2Line } from "react-icons/ri";
+
+const colorOptions = [
+    { id: "warm-nude", label: "Warm Nude", color: "#E4A38A" },
+    { id: "baby-pink", label: "Baby Pink", color: "#F7C3C8" },
+    { id: "rosy-pink", label: "Rosy Pink", color: "#D68086" },
+    { id: "mauve", label: "Mauve", color: "#B07A8C" },
+    { id: "hot-pink", label: "Hot Pink", color: "#E84571" },
+    { id: "classic-red", label: "Classic Red", color: "#C2352A" },
+    { id: "orange-coral", label: "Orange Coral", color: "#F28A5B" },
+    { id: "terracotta", label: "Terracotta", color: "#C56548" },
+    { id: "cocoa-brown", label: "Cocoa Brown", color: "#8A4B37" },
+];
+
+function getColorLabel(colorId: string | null | undefined): string {
+    if (!colorId) return "None";
+    const found = colorOptions.find(opt => opt.id === colorId);
+    return found ? found.label : colorId;
+}
 
 interface ProductData {
     id: string;
@@ -20,7 +39,7 @@ interface ProductData {
     currentlyInUse: string;
     usage: string;
     image: string;
-    rating: number;
+    colorVariant: string;
 }
 
 export default function ProductDetail({ productId, onBack }: { productId: string; onBack?: () => void }) {
@@ -35,29 +54,30 @@ export default function ProductDetail({ productId, onBack }: { productId: string
                 setLoading(true);
                 const res = await fetch(`/api/items/${productId}`);
                 if (!res.ok) {
-                    throw new Error('Failed to fetch item');
+                    throw new Error("Failed to fetch item");
                 }
                 const json = await res.json();
                 const item = json.data?.item;
-                
+
                 setProduct({
                     id: String(item.id),
-                    brand: item.brand || 'Unknown',
-                    name: item.name || 'Unnamed',
-                    category: item.category || 'Skincare',
+                    brand: item.brand || "Unknown",
+                    name: item.name || "Unnamed",
+                    category: item.category || "Skincare",
                     price: item.price || 0,
-                    expirationDate: item.expiration_date ? new Date(item.expiration_date).toLocaleDateString() : 'N/A',
-                    openingDate: item.opening_date ? new Date(item.opening_date).toLocaleDateString() : 'N/A',
-                    periodAfterOpening: item.pao_months ? `${item.pao_months}M` : 'N/A',
-                    currentlyInUse: item.is_currently_in_use ? 'Yes' : 'No',
-                    usage: item.usage_percentage ? `${item.usage_percentage}%` : '0%',
-                    image: item.image_url || '/products/placeholder.svg',
-                    rating: item.rating || 0,
+                    expirationDate: item.expiration_date ? new Date(item.expiration_date).toLocaleDateString("id-ID", { day: "2-digit", month: "long", year: "numeric" }) : "N/A",
+
+                    openingDate: item.opening_date ? new Date(item.opening_date).toLocaleDateString("id-ID", { day: "2-digit", month: "long", year: "numeric" }) : "N/A",
+                    periodAfterOpening: item.pao_months ? `${item.pao_months} months` : "N/A",
+                    currentlyInUse: item.is_currently_in_use ? "Yes" : "No",
+                    usage: item.usage_percentage ? `${item.usage_percentage}%` : "0%",
+                    image: item.image_url || "/products/placeholder.svg",
+                    colorVariant: getColorLabel(item.color_variation),
                 });
                 setError(null);
             } catch (err) {
-                console.error('Error fetching item:', err);
-                setError('Failed to load item');
+                console.error("Error fetching item:", err);
+                setError("Failed to load item");
             } finally {
                 setLoading(false);
             }
@@ -66,17 +86,16 @@ export default function ProductDetail({ productId, onBack }: { productId: string
     }, [productId]);
 
     const handleRemove = async () => {
-        if (!confirm('Are you sure you want to remove this item?')) return;
         try {
             const res = await fetch(`/api/items/${productId}`, {
-                method: 'DELETE',
+                method: "DELETE",
             });
-            if (!res.ok) throw new Error('Failed to delete item');
+            if (!res.ok) throw new Error("Failed to delete item");
             if (onBack) onBack();
-            else window.location.href = '/directory';
+            else window.location.href = "/directory";
         } catch (err) {
-            console.error('Error deleting item:', err);
-            alert('Failed to delete item');
+            console.error("Error deleting item:", err);
+            alert("Failed to delete item");
         }
     };
 
@@ -95,7 +114,7 @@ export default function ProductDetail({ productId, onBack }: { productId: string
     if (error || !product) {
         return (
             <div className="w-full max-w-md mx-auto flex items-center justify-center min-h-screen">
-                <div className="text-center text-red-500">{error || 'Product not found'}</div>
+                <div className="text-center text-red-500">{error || "Product not found"}</div>
             </div>
         );
     }
@@ -103,7 +122,15 @@ export default function ProductDetail({ productId, onBack }: { productId: string
     return (
         <>
             <div className="w-full max-w-md mx-auto flex-center flex-col">
-                <NavigationHeader title={product.category} onBack={onBack} />
+                <div className={`flex-between items-center gap-3 mb-6 pt-6 w-full`}>
+                    <button type="button" onClick={onBack} className="p-1 rounded hover:bg-gray-100">
+                        <LuArrowLeft className="text-xl text-woodsmoke" />
+                    </button>
+                    <h1 className="text-lg font-semibold">Product</h1>
+                    <button type="button" onClick={()=> window.location.href = `/directory/product/edit/${product.id}`} className="p-1 rounded hover:bg-gray-100">
+                        <RiEdit2Line className="text-xl text-woodsmoke" />
+                    </button>
+                </div>
 
                 <ProductImage image={product.image} name={product.name} />
 
@@ -120,7 +147,7 @@ export default function ProductDetail({ productId, onBack }: { productId: string
                 product={{
                     name: product.name,
                     image: product.image,
-                    rating: product.rating,
+                    colorVariant: product.colorVariant,
                 }}
             />
         </>

@@ -2,23 +2,17 @@
 
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { useEffect } from "react";
 
 export function CompletionStep() {
     const router = useRouter();
 
-    useEffect(() => {
-        const handleContinue = () => {
-            localStorage.setItem("revibe_intro_seen", "true");
-            router.push("/registration");
-        };
-
-        const timer = setTimeout(handleContinue, 2000);
-        return () => clearTimeout(timer);
-    }, [router]);
+    const handleContinue = () => {
+        localStorage.setItem("revibe_intro_seen", "true");
+        router.push("/registration");
+    };
 
     return (
-        <div className="max-w-md mx-auto h-screen w-full flex items-center justify-center scrollbar-hide">
+        <div className="relative max-w-md mx-auto h-full w-full flex items-center flex-col justify-center scrollbar-hide">
             <div className="flex flex-col items-center gap-8">
                 <div>
                     <Image src={"/onboarding_complete.svg"} alt="" width={220} height={250} />
@@ -27,6 +21,10 @@ export function CompletionStep() {
                     <h1 className="text-2xl max-w-xs font-semibold leading-snug text-woodsmoke">Nicely done! 💛 A fresh start for your skin, your shelf, and your mindset.</h1>
                 </div>
             </div>
+
+            <button onClick={handleContinue} className="absolute bottom-0 w-full py-4 rounded-full bg-black text-white text-lg hover:bg-gray-800 transition">
+                Continue
+            </button>
         </div>
     );
 }

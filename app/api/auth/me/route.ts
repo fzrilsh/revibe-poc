@@ -2,8 +2,9 @@ import { NextResponse } from 'next/server'
 import { parse as parseCookie } from 'cookie'
 import jwt from 'jsonwebtoken'
 import { findUserById, updateUser } from '../../../../features/auth/auth.repository'
+import prisma from '@/lib/prisma'
 import { buildPublicUser } from '@/features/auth/buildPublicUser'
-import { COOKIE_NAME, SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, BUCKET, JWT_SECRET, buildPublicUrl, createSupabaseClient } from '@/lib/config'
+import { COOKIE_NAME, SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, BUCKET, JWT_SECRET, createSupabaseClient } from '@/lib/config'
 
 async function getCurrentUser(req: Request) {
     const cookieHeader = req.headers.get('cookie') ?? ''
@@ -12,12 +13,12 @@ async function getCurrentUser(req: Request) {
     if (!token) return null
 
     try {
-        const decoded = jwt.verify(token, JWT_SECRET) as any
+        const decoded = jwt.verify(token, JWT_SECRET) as { sub?: string }
         const userId = decoded?.sub
         if (!userId) return null
 
         return await findUserById(userId)
-    } catch (err) {
+    } catch {
         return null
     }
 }
@@ -46,7 +47,13 @@ export async function PATCH(req: Request) {
         }
 
         const form = await req.formData()
-        const updates: any = {}
+        const updates: Record<string, unknown> = {}
+
+        // Optional nickname update
+        const nickname = form.get('nickname')
+        if (typeof nickname === 'string' && nickname.trim().length > 0) {
+            updates.nickname = nickname.trim()
+        }
 
         const birthYearRaw = form.get('birth_year')
         if (birthYearRaw !== null) {
@@ -69,6 +76,32 @@ export async function PATCH(req: Request) {
                 }, { status: 400 })
             }
             updates.skinType = skinTypeVal
+        }
+
+        // Optional skin concerns (array of names)
+        const skinConcernsRaw = form.get('skin_concerns')
+        let skinConcernIds: number[] | undefined = undefined
+        if (typeof skinConcernsRaw === 'string') {
+            try {
+                const parsed = JSON.parse(skinConcernsRaw)
+                if (Array.isArray(parsed)) {
+                    const names = parsed
+                        .filter((v): v is string => typeof v === 'string')
+                        .map((v) => v.trim())
+                        .filter((v) => v.length > 0)
+
+                    if (names.length > 0) {
+                        const found = await prisma.skinConcern.findMany({
+                            where: { name: { in: names } },
+                        })
+                        skinConcernIds = found.map((f) => f.id)
+                    } else {
+                        skinConcernIds = []
+                    }
+                }
+            } catch {
+                return NextResponse.json({ error: 'Invalid skin_concerns format (must be JSON array of strings)' }, { status: 400 })
+            }
         }
 
         const file = form.get('profile_image')
@@ -99,7 +132,7 @@ export async function PATCH(req: Request) {
             updates.profileImage = newPath
         }
 
-        const updated = await updateUser(user.id, updates)
+        const updated = await updateUser(user.id, { ...updates, skinConcernIds })
 
         if (newPath && oldPath) {
             const supabase = createSupabaseClient()
@@ -109,7 +142,8 @@ export async function PATCH(req: Request) {
         const publicUser = buildPublicUser(updated)
 
         return NextResponse.json({ user: publicUser })
-    } catch (err: any) {
-        return NextResponse.json({ error: err?.message ?? 'Update failed' }, { status: 400 })
+    } catch (err) {
+        const message = err instanceof Error ? err.message : 'Update failed'
+        return NextResponse.json({ error: message }, { status: 400 })
     }
 }

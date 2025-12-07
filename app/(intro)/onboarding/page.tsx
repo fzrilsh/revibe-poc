@@ -75,9 +75,9 @@ export default function OnboardingPage() {
                     <NavigationHeader currentStep={index} totalSteps={total} onBack={handleBack} canGoBack={index > 0} />
                 </motion.div>
             )}
-            <div className="flex-1 scrollbar-hide overflow-y-auto py-4">
+            <div className="flex-1 scrollbar-hide h-full overflow-y-auto py-4">
                 <AnimatePresence mode="wait">
-                    <motion.div key={index} {...fadeUp}>
+                    <motion.div className="h-full" key={index} {...fadeUp}>
                         <CurrentStep onNext={handleNext} />
                     </motion.div>
                 </AnimatePresence>

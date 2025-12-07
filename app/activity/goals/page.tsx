@@ -8,7 +8,7 @@ export default function GoalsPage() {
         <>
             <Header />
             <ActivityTabs />
-            <main className="pt-32 pb-24 min-h-screen h-full">
+            <main className="pt-32 pb-24 min-h-screen h-full bg-onboarding">
                 <GoalsContent />
             </main>
             <Navbar />

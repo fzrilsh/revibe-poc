@@ -12,6 +12,8 @@ import { ReviewSection } from "./_components/sections/ReviewSection";
 import Header from "@navigation/header";
 import Navbar from "@navigation/navbar";
 import type { UserPublic } from "@/features/auth/auth.types";
+import { LuPlus } from "react-icons/lu";
+import { useRouter } from "next/navigation";
 type Item = {
     status?: string | null;
     item_status?: string | null;
@@ -20,6 +22,8 @@ type Item = {
 };
 
 export default function Home() {
+    const router = useRouter();
+
     const [user, setUser] = useState<UserPublic | null>(null);
     const [loadingUser, setLoadingUser] = useState(true);
     const [itemsCount, setItemsCount] = useState(0);
@@ -67,8 +71,8 @@ export default function Home() {
                     const now = Date.now();
                     const in30 = 30 * 24 * 60 * 60 * 1000;
                     const expCount = items.filter((it) => {
-                        const status = (it.status ?? it.item_status ?? '').toLowerCase();
-                        if (status === 'expiring') return true;
+                        const status = (it.status ?? it.item_status ?? "").toLowerCase();
+                        if (status === "expiring") return true;
                         const expiresAt = it.expires_at ?? it.expiration_date ?? null;
                         if (!expiresAt) return false;
                         const t = new Date(expiresAt).getTime();
@@ -87,6 +91,10 @@ export default function Home() {
         };
     }, []);
 
+    const onAddProduct = () => {
+        router.push("/directory/product/add");
+    };
+
     return (
         <>
             <Header />
@@ -98,6 +106,10 @@ export default function Home() {
                 <ChallengeSection />
                 <ExpiringSection />
                 <ReviewSection />
+
+                <button onClick={onAddProduct} className="fixed right-10 bottom-24 bg-black p-4 rounded-full shadow-lg hover:bg-gray-800 transition-colors">
+                    <LuPlus className="text-2xl text-white" />
+                </button>
             </main>
             <Navbar />
         </>

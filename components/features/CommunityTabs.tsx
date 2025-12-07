@@ -5,7 +5,6 @@ import { usePathname } from "next/navigation";
 
 const tabs = [
     { label: "Community", href: "/feed/community" },
-    { label: "Friend", href: "/feed/friend" },
     { label: "Blog", href: "/feed/blog" },
 ];
 
@@ -14,7 +13,7 @@ export default function CommunityTabs() {
 
     return (
         <div className="fixed top-[88px] left-0 right-0 bg-white w-full border-b border-gray-200 z-40">
-            <div className="flex-between gap-8 px-6 pt-4">
+            <div className="flex-between justify-around gap-8 px-6 pt-4">
                 {tabs.map((t) => {
                     const active = pathname === t.href;
                     return (

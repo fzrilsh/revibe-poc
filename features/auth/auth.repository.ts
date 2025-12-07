@@ -49,14 +49,54 @@ export async function createUser(data: RegisterDto) {
 }
 
 export async function updateUser(id: string, data: any) {
-    const { birthYear, skinType, profileImage } = data
+    const { birthYear, skinType, profileImage, nickname, skinConcernIds } = data
 
+    // If skinConcernIds provided, update user and many-to-many in a transaction
+    if (skinConcernIds) {
+        return prisma.$transaction(async (tx) => {
+            await tx.user.update({
+                where: { id },
+                data: {
+                    birthYear,
+                    profileImage,
+                    skinType: skinType ? (skinType as SkinType) : null,
+                    nickname: nickname ?? undefined,
+                }
+            })
+
+            await tx.userSkinConcern.deleteMany({ where: { userId: id } })
+
+            if (skinConcernIds.length) {
+                await tx.userSkinConcern.createMany({
+                    data: skinConcernIds.map((scId: number) => ({
+                        userId: id,
+                        skinConcernId: scId,
+                    }))
+                })
+            }
+
+            return tx.user.findUnique({
+                where: { id },
+                include: {
+                    onboardingAnswers: { include: { question: true } },
+                    skinConcerns: { include: { skinConcern: true } }
+                }
+            })
+        })
+    }
+
+    // Without skin concerns, simple update
     return prisma.user.update({
         where: { id },
         data: {
             birthYear,
             profileImage,
             skinType: skinType ? (skinType as SkinType) : null,
+            nickname: nickname ?? undefined,
+        },
+        include: {
+            onboardingAnswers: { include: { question: true } },
+            skinConcerns: { include: { skinConcern: true } }
         }
     })
 }

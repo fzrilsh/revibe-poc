@@ -10,7 +10,7 @@ interface ShareModalProps {
     product: {
         name: string;
         image: string;
-        rating: number;
+        colorVariant: string;
     };
 }
 
@@ -44,7 +44,7 @@ export default function ShareModal({ isOpen, onClose, product }: ShareModalProps
                     <p className="text-white text-lg text-center mb-2">{product.name}</p>
                     <div className="flex gap-1">
                         {[1, 2, 3, 4, 5].map((star) => (
-                            <FaStar key={star} className={`text-base ${star <= product.rating ? "text-yellow-400" : "text-gray-300"}`} />
+                            <FaStar key={star} className={`text-base ${product.name ? "text-yellow-400" : "text-gray-300"}`} />
                         ))}
                     </div>
                 </div>

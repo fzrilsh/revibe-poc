@@ -1,4 +1,5 @@
 import Image from "next/image";
+import Link from "next/link";
 
 const expiringProducts = [
     {
@@ -14,9 +15,9 @@ export function ExpiringSection() {
         <div className="bg-gray-200 p-4 rounded-2xl w-full flex-center flex-col gap-4">
             <div className="flex-between w-full">
                 <h1 className="font-semibold flex items-center gap-2">
-                    <span className="text-xl">⛔️</span> Expiring Soon
+                    <span className="text-xl">⛔</span> Expiring Soon
                 </h1>
-                <button className="text-gray-500 text-sm hover:text-gray-700">View All</button>
+                <Link href={""} className="text-gray-500 text-sm hover:text-gray-700">View All</Link>
             </div>
 
             <div className="flex-col w-full gap-3 flex-center">

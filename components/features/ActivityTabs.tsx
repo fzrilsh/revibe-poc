@@ -6,7 +6,6 @@ import { usePathname } from "next/navigation";
 const tabs = [
     { label: "Challenge", href: "/activity/challenge" },
     { label: "Goals", href: "/activity/goals" },
-    { label: "History", href: "/activity/history" },
 ];
 
 export function ActivityTabs() {
@@ -14,7 +13,7 @@ export function ActivityTabs() {
 
     return (
         <div className="fixed top-20 pt-4 left-0 right-0 bg-white w-full border-b border-gray-200 z-40">
-            <div className="flex-between gap-8 px-6 pt-4">
+            <div className="flex-center justify-around flex-row gap-8 px-6 pt-4">
                 {tabs.map((t) => {
                     const active = pathname === t.href;
                     return (

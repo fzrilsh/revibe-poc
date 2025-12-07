@@ -1,9 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import Image from "next/image";
-import { LuUser, LuPlus } from "react-icons/lu";
 import { StepProps } from "@type/onboarding";
+import CameraProfile from "./profile/CameraProfile";
 
 export type StepData = {
     photo: string | null;
@@ -22,29 +21,15 @@ const currentYear = new Date().getFullYear();
 const yearOptions = Array.from({ length: 100 }, (_, i) => currentYear - i);
 
 export function ProfileSetupStep({ onNext }: StepProps<StepData>) {
-    const [photo, setPhoto] = useState<string | null>(null);
-    const [file, setFile] = useState<File | null>(null);
     const [nickname, setNickname] = useState("");
     const [gender, setGender] = useState("");
     const [birthYear, setBirthYear] = useState("");
 
     const isValid = nickname.trim() !== "" && gender !== "" && birthYear !== "";
 
-    const handlePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const file = e.target.files?.[0];
-        if (file) {
-            setFile(file);
-            const reader = new FileReader();
-            reader.onloadend = () => {
-                setPhoto(reader.result as string);
-            };
-            reader.readAsDataURL(file);
-        }
-    };
-
     const handleContinue = () => {
         if (isValid) {
-            onNext({ photo, nickname, gender, birthYear, file });
+            onNext({ photo: null, nickname, gender, birthYear, file: null });
         }
     };
 
@@ -55,16 +40,7 @@ export function ProfileSetupStep({ onNext }: StepProps<StepData>) {
             </div>
 
             <div className="flex flex-col w-full h-full gap-6">
-                <div className="flex flex-col items-center gap-2">
-                    <label className="relative cursor-pointer group">
-                        <input type="file" accept="image/*" onChange={handlePhotoUpload} className="hidden" />
-                        <div className="w-24 h-24 rounded-full bg-white flex items-center justify-center group-hover:border-[#958FFA] transition relative overflow-hidden">{photo ? <Image src={photo} alt="Profile" className="object-cover" fill /> : <LuUser className="text-4xl text-black" />}</div>
-                        <div className="absolute bottom-0 right-0 w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center border-2 border-gray-300 group-hover:border-[#958FFA] transition">
-                            <LuPlus className="text-gray-600" />
-                        </div>
-                    </label>
-                    <span className="text-sm text-gray-600">Add a photo</span>
-                </div>
+                <CameraProfile />
 
                 <div className="flex flex-col w-full gap-4">
                     <input type="text" placeholder="Nickname *" value={nickname} id="nickname" name="nickname" onChange={(e) => setNickname(e.target.value)} className="w-full px-5 py-4 rounded-3xl border-2 border-gray-300 focus:border-[#958FFA] focus:outline-none transition" />
