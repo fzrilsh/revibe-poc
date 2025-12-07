@@ -16,7 +16,7 @@ export function CompletionStep({ onNext }: CompletionStepProps) {
                 </div>
             </div>
 
-            <button onClick={onNext} className="absolute bottom-0 w-full py-4 rounded-full bg-black text-white text-lg disabled:opacity-40 disabled:cursor-not-allowed hover:bg-gray-800 transition">
+            <button onClick={onNext} className="absolute bottom-0 w-full py-4 rounded-full bg-black text-white text-lg disabled:opacity-40 disabled:cursor-not-allowed hover:bg-gray-800 transition cursor-pointer">
                 Explore REVIBE
             </button>
         </div>

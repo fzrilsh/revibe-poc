@@ -31,12 +31,16 @@ export default function Home() {
 
     const [showHomeModal, setShowHomeModal] = useState(false);
 
+    const router = useRouter();
+
     useEffect(() => {
         let active = true;
         (async () => {
             try {
                 const res = await fetch("/api/auth/me", { cache: "no-store" });
                 if (!res.ok) {
+                    await fetch("/api/auth/logout", { method: "POST", credentials: "include" });
+                    router.push("/");
                     return;
                 }
                 const json = await res.json();

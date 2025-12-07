@@ -17,7 +17,7 @@ export const seedSkinConcerns = async (prisma: PrismaClient) => {
     console.log('running seed: skin-concerns...')
 
     await prisma.skinConcern.createMany({
-        data: concerns.map((name) => ({ name })),
+        data: concerns.map((name, id) => ({ id: id + 1, name })),
         skipDuplicates: true,
     })
 }
