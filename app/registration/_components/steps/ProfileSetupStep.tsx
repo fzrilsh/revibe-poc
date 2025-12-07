@@ -24,12 +24,14 @@ export function ProfileSetupStep({ onNext }: StepProps<StepData>) {
     const [nickname, setNickname] = useState("");
     const [gender, setGender] = useState("");
     const [birthYear, setBirthYear] = useState("");
+    const [photo, setPhoto] = useState<string | null>(null);
+    const [file, setFile] = useState<File | null>(null);
 
     const isValid = nickname.trim() !== "" && gender !== "" && birthYear !== "";
 
     const handleContinue = () => {
         if (isValid) {
-            onNext({ photo: null, nickname, gender, birthYear, file: null });
+            onNext({ photo, nickname, gender, birthYear, file });
         }
     };
 
@@ -40,7 +42,10 @@ export function ProfileSetupStep({ onNext }: StepProps<StepData>) {
             </div>
 
             <div className="flex flex-col w-full h-full gap-6">
-                <CameraProfile />
+                <CameraProfile onImageChange={(selectedFile, preview) => {
+                    setFile(selectedFile);
+                    setPhoto(preview);
+                }} />
 
                 <div className="flex flex-col w-full gap-4">
                     <input type="text" placeholder="Nickname *" value={nickname} id="nickname" name="nickname" onChange={(e) => setNickname(e.target.value)} className="w-full px-5 py-4 rounded-3xl border-2 border-gray-300 focus:border-[#958FFA] focus:outline-none transition" />

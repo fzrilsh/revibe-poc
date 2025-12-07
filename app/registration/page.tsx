@@ -60,7 +60,7 @@ export default function RegistrationPage() {
             const concerns = (answers[2] as string[] | undefined) ?? [];
 
             if (!profile || !profile.nickname || !profile.birthYear) {
-                alert("Please complete your profile information");
+                console.log("Please complete your profile information");
                 return;
             }
 
@@ -127,7 +127,7 @@ export default function RegistrationPage() {
 
             router.push("/");
         } catch (err) {
-            alert((err as Error)?.message || "Failed to register");
+            console.log((err as Error)?.message || "Failed to register");
         }
     };
 
