@@ -14,6 +14,7 @@ import Navbar from "@navigation/navbar";
 import type { UserPublic } from "@/features/auth/auth.types";
 import { LuPlus } from "react-icons/lu";
 import { useRouter } from "next/navigation";
+import HomeModal from "@/components/shared/HomeModal";
 type Item = {
     status?: string | null;
     item_status?: string | null;
@@ -22,13 +23,13 @@ type Item = {
 };
 
 export default function Home() {
-    const router = useRouter();
-
     const [user, setUser] = useState<UserPublic | null>(null);
     const [loadingUser, setLoadingUser] = useState(true);
     const [itemsCount, setItemsCount] = useState(0);
     const [expireCount, setExpireCount] = useState(0);
     const [challengeCount, setChallengeCount] = useState(0);
+
+    const [showHomeModal, setShowHomeModal] = useState(false);
 
     useEffect(() => {
         let active = true;
@@ -92,7 +93,7 @@ export default function Home() {
     }, []);
 
     const onAddProduct = () => {
-        router.push("/directory/product/add");
+        setShowHomeModal(true);
     };
 
     return (
@@ -107,10 +108,16 @@ export default function Home() {
                 <ExpiringSection />
                 <ReviewSection />
 
-                <button onClick={onAddProduct} className="fixed right-10 bottom-24 bg-black p-4 rounded-full shadow-lg hover:bg-gray-800 transition-colors">
+                <button onClick={onAddProduct} className="fixed z-99 right-10 bottom-24 bg-black p-4 rounded-full shadow-lg hover:bg-gray-800 transition-colors">
                     <LuPlus className="text-2xl text-white" />
                 </button>
             </main>
+            <HomeModal
+                isOpen={showHomeModal}
+                onClose={() => {
+                    setShowHomeModal(false);
+                }}
+            />
             <Navbar />
         </>
     );

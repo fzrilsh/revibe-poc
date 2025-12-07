@@ -45,17 +45,17 @@ export default function EditProductFields({ data, onChange }: EditProductFieldsP
             <FieldText label="Brand" name="brand" value={data.brand} onChange={onChange} required placeholder="Type brand name..." />
             <FieldText label="Product Name" name="name" value={data.name} onChange={onChange} required placeholder="Type product name..." />
             <div className="grid grid-cols-2 gap-4">
-                <BottomSheetSelect label="Category" name="category" value={data.category} onChange={onChange} required options={categories} />
+                <BottomSheetSelect className="bottom-18" label="Category" name="category" value={data.category} onChange={onChange} required options={categories} />
                 <FieldText label="Price" name="price" value={data.price} onChange={onChange} required placeholder="Enter product price..." type="number" />
             </div>
             <FieldDate label="Expiration date" name="expirationDate" value={data.expirationDate} onChange={onChange} required />
             <div className="grid grid-cols-2 gap-4">
                 <FieldDate label="Opening date" name="openingDate" value={data.openingDate} onChange={onChange} required />
-                <BottomSheetSelect label="Period after opening" name="periodAfterOpening" value={data.periodAfterOpening} onChange={onChange} required options={periodOptions} />
+                <BottomSheetSelect className="bottom-18" label="Period after opening" name="periodAfterOpening" value={data.periodAfterOpening} onChange={onChange} required options={periodOptions} />
             </div>
-            <BottomSheetSelect label="Currently in use?" name="currentlyInUse" value={data.currentlyInUse} onChange={onChange} required options={inUseOptions} />
-            <BottomSheetSelect label="Product usage" name="usage" value={data.usage} onChange={onChange} required options={productUsages} />
-            <BottomSheetSelectColor label="Select Color Variation" name="colorVariant" value={data.colorVariant} onChange={onChange} options={colorOptions} />
+            <BottomSheetSelect className="bottom-18" label="Currently in use?" name="currentlyInUse" value={data.currentlyInUse} onChange={onChange} required options={inUseOptions} />
+            <BottomSheetSelect className="bottom-18" label="Product usage" name="usage" value={data.usage} onChange={onChange} required options={productUsages} />
+            <BottomSheetSelectColor className="bottom-18" label="Select Color Variation" name="colorVariant" value={data.colorVariant} onChange={onChange} options={colorOptions} />
 
             <div className="flex-col gap-1 hidden">
                 <input type="text" name="status" value={data.status} readOnly className="w-full rounded-full border border-gray-300 bg-gray-50 px-4 py-3 text-sm text-gray-600 cursor-not-allowed" />

@@ -1,15 +1,27 @@
 "use client";
 
 import Image from "next/image";
+import { motion } from "motion/react";
 
 export default function SuccessModal({ imagePreview, onContinue }: { imagePreview?: string; onContinue: () => void }) {
     return (
-        <div className="w-full max-w-md mx-auto flex flex-col gap-6">
-            <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-6 z-50">
-                <div className="bg-blue-chalk rounded-3xl p-8 w-full max-w-sm flex flex-col gap-6 items-center text-center">
+        <div className="w-full mx-auto flex flex-col gap-6 relative">
+            <motion.div 
+                className="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+            >
+                <motion.div 
+                    className="bg-onboarding fixed bottom-0 left-0 right-0 rounded-t-3xl p-8 w-full flex flex-col gap-6 items-center text-center"
+                    initial={{ y: "100%" }}
+                    animate={{ y: 0 }}
+                    exit={{ y: "100%" }}
+                    transition={{ type: "spring", stiffness: 160, damping: 22 }}
+                >
                     {/* Header */}
-                    <div className="w-full">
-                        <div className="h-1 bg-gray-300 rounded-full mb-6"></div>
+                    <div className="w-full flex-center">
+                        <div className="h-1 w-20 bg-gray-300 rounded-full mb-6"></div>
                     </div>
 
                     {/* Title */}
@@ -36,8 +48,8 @@ export default function SuccessModal({ imagePreview, onContinue }: { imagePrevie
                     <button onClick={onContinue} className="w-full bg-black text-white py-4 px-6 rounded-full font-medium hover:bg-gray-800 transition-colors">
                         Continue
                     </button>
-                </div>
-            </div>
+                </motion.div>
+            </motion.div>
         </div>
     );
 }

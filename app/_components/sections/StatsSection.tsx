@@ -10,7 +10,7 @@ export function StatsSection({ itemsCount, expireCount, challengeCount }: StatsS
     const stats = [
         { id: "products", value: itemsCount, label: "Products", icon: "/icons/product.svg", click: "/directory" },
         { id: "expiring", value: expireCount, label: "Expiring", icon: "/icons/expiring.svg", click: "/directory?filter=expiring" },
-        { id: "challenge", value: challengeCount, label: "Challenge", icon: "/icons/challenge.svg", click: "/challenge" },
+        { id: "challenge", value: challengeCount, label: "Challenge", icon: "/icons/challenge.svg", click: "/activity/challenge" },
     ];
 
     return (

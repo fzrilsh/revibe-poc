@@ -99,6 +99,7 @@ export default function RegistrationPage() {
             const formData = new FormData();
             formData.append("nickname", profile.nickname);
             formData.append("birth_year", String(profile.birthYear));
+            formData.append("gender", profile.gender);
             if (skinType) formData.append("skin_type", skinTypeMap[skinType] ?? skinType.toUpperCase());
             formData.append("skin_concern_ids", JSON.stringify(skinConcernIds));
             formData.append("onboarding_answers", JSON.stringify(onboardingAnswers));

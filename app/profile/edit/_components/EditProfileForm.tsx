@@ -2,6 +2,8 @@
 
 import { useState, useEffect, ChangeEvent, FormEvent } from "react";
 import Image from "next/image";
+import { LuPlus } from "react-icons/lu";
+import { HiUser } from "react-icons/hi";
 
 const SKIN_TYPES = [
     { value: "OILY", label: "Oily Skin" },
@@ -95,6 +97,7 @@ export default function EditProfileForm() {
             sendFormData.append("nickname", formData.nickname);
             sendFormData.append("birth_year", String(formData.birthYear));
             sendFormData.append("skin_type", formData.skinType);
+            sendFormData.append("gender", formData.gender);
             sendFormData.append("skin_concerns", JSON.stringify(formData.skinConcerns));
 
             if (imageFile) {
@@ -128,27 +131,30 @@ export default function EditProfileForm() {
     return (
         <form onSubmit={handleSubmit} className="space-y-6 pb-6">
             {/* Profile Photo */}
-            <div className="text-center">
-                <div className="w-28 h-28 mx-auto mb-4 rounded-full overflow-hidden bg-gray-200 relative">
-                    <Image src={profileImage} alt="Profile" fill className="object-cover" />
-                </div>
-                <label className="bg-gray-300 text-gray-800 px-6 py-2 rounded-full text-sm font-medium cursor-pointer inline-block hover:bg-gray-400 transition">
-                    Change Photo
-                    <input type="file" accept="image/*" onChange={handleImageChange} className="hidden" />
+            <div className="flex flex-col items-center gap-2">
+                <label className="relative cursor-pointer group" htmlFor="profile_image">
+                    <div className="w-24 h-24 rounded-full bg-[#EFEFEF] flex items-center justify-center group-hover:border-[#958FFA] transition relative overflow-hidden">
+                        {profileImage ? <Image src={profileImage} alt="Profile" fill className="object-cover" /> : <HiUser className="text-5xl text-[#D4D4D4]" />}
+                    </div>
+
+                    <div className="absolute -bottom-2.5 left-1/2 -translate-x-1/2 w-8 h-8 bg-black rounded-full flex items-center justify-center border-2 border-gray-300 group-hover:border-[#958FFA] transition">
+                        <LuPlus className="text-white" />
+                    </div>
                 </label>
+
+                <input id="profile_image" type="file" accept="image/*;capture=camera" className="hidden" onChange={handleImageChange} />
+                <span className="text-sm text-gray-600 mt-4">Tambahkan foto profil</span>
             </div>
 
             {/* Nickname */}
             <div>
-                <label className="block text-sm font-medium mb-2">Nickname*</label>
-                <input type="text" name="nickname" value={formData.nickname} onChange={handleInputChange} className="w-full px-5 py-4 rounded-3xl border-2 border-gray-300 focus:border-[#958FFA] focus:outline-none transition" placeholder="Your nickname" required />
+                <input type="text" name="nickname" value={formData.nickname} onChange={handleInputChange} className="w-full px-5 py-4 rounded-3xl border-2 border-gray-300 focus:border-[#958FFA] focus:outline-none transition" placeholder="Nickname*" required />
             </div>
 
             <div>
-                <label className="block text-sm font-medium mb-2">Gender</label>
                 <select value={formData.gender} onChange={handleInputChange} id="gender" name="gender" className="w-full px-5 py-4 rounded-3xl border-2 border-gray-300 focus:border-[#958FFA] focus:outline-none transition appearance-none bg-white cursor-pointer">
                     <option value="" disabled>
-                        Select option
+                        Gender
                     </option>
                     {genderOptions.map((opt) => (
                         <option key={opt.id} value={opt.id}>
@@ -160,7 +166,6 @@ export default function EditProfileForm() {
 
             {/* Birth Year */}
             <div>
-                <label className="block text-sm font-medium mb-2">Birth year</label>
                 {/* <input type="number" name="birthYear" value={formData.birthYear} onChange={handleInputChange} className="w-full px-5 py-4 rounded-3xl border-2 border-gray-300 focus:border-[#958FFA] focus:outline-none transition" placeholder="Enter birth year" /> */}
 
                 <select value={formData.birthYear} onChange={handleInputChange} id="birthYear" name="birthYear" className="w-full px-5 py-4 rounded-3xl border-2 border-gray-300 focus:border-[#958FFA] focus:outline-none transition appearance-none bg-white cursor-pointer">

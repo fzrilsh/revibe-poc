@@ -1,6 +1,6 @@
-import { SkinType } from '@prisma/client'
-import prisma from '../../lib/prisma'
-import type { RegisterDto } from './auth.types'
+import { SkinType } from "@prisma/client";
+import prisma from "../../lib/prisma";
+import type { RegisterDto } from "./auth.types";
 
 export async function findUserById(id: string) {
     return prisma.user.findUnique({
@@ -8,14 +8,14 @@ export async function findUserById(id: string) {
         include: {
             onboardingAnswers: { include: { question: true } },
             skinConcerns: {
-                include: { skinConcern: true }
-            }
-        }
-    })
+                include: { skinConcern: true },
+            },
+        },
+    });
 }
 
 export async function createUser(data: RegisterDto) {
-    const { nickname, birth_year, skin_type, skin_concern_ids, onboarding_answers } = data
+    const { nickname, birth_year, skin_type, skin_concern_ids, onboarding_answers } = data;
 
     const createData: any = {
         nickname,
@@ -26,33 +26,33 @@ export async function createUser(data: RegisterDto) {
 
         skinConcerns: skin_concern_ids?.length
             ? {
-                create: skin_concern_ids.map((id: number) => ({
-                    skinConcern: { connect: { id } }
-                }))
-            }
+                  create: skin_concern_ids.map((id: number) => ({
+                      skinConcern: { connect: { id } },
+                  })),
+              }
             : undefined,
 
         onboardingAnswers: onboarding_answers?.length
             ? {
-                create: onboarding_answers.map((a: any) => ({
-                    question: { connect: { id: a.questionId } },
-                    value: a.answer
-                }))
-            }
-            : undefined
-    }
+                  create: onboarding_answers.map((a: any) => ({
+                      question: { connect: { id: a.questionId } },
+                      value: a.answer,
+                  })),
+              }
+            : undefined,
+    };
 
     return await prisma.user.create({
         data: createData as any,
         include: {
             skinConcerns: { include: { skinConcern: true } },
-            onboardingAnswers: { include: { question: true } }
-        }
-    })
+            onboardingAnswers: { include: { question: true } },
+        },
+    });
 }
 
 export async function updateUser(id: string, data: any) {
-    const { birthYear, skinType, profileImage, nickname, skinConcernIds } = data
+    const { birthYear, skinType, profileImage, nickname, skinConcernIds, gender } = data;
 
     // If skinConcernIds provided, update user and many-to-many in a transaction
     if (skinConcernIds) {
@@ -64,45 +64,46 @@ export async function updateUser(id: string, data: any) {
                     profileImage,
                     skinType: skinType ? (skinType as SkinType) : null,
                     nickname: nickname ?? undefined,
-                }
-            })
+                    gender: gender ?? undefined,
+                },
+            });
 
-            await tx.userSkinConcern.deleteMany({ where: { userId: id } })
+            await tx.userSkinConcern.deleteMany({ where: { userId: id } });
 
             if (skinConcernIds.length) {
                 await tx.userSkinConcern.createMany({
                     data: skinConcernIds.map((scId: number) => ({
                         userId: id,
                         skinConcernId: scId,
-                    }))
-                })
+                    })),
+                });
             }
 
             return tx.user.findUnique({
                 where: { id },
                 include: {
                     onboardingAnswers: { include: { question: true } },
-                    skinConcerns: { include: { skinConcern: true } }
-                }
-            })
-        })
+                    skinConcerns: { include: { skinConcern: true } },
+                },
+            });
+        });
     }
 
     // Without skin concerns, simple update
     const updateData: any = {
-        gender: data.gender ?? undefined,
+        gender: gender ?? undefined,
         birthYear,
         profileImage,
         skinType: skinType ? (skinType as SkinType) : null,
         nickname: nickname ?? undefined,
-    }
+    };
 
     return prisma.user.update({
         where: { id },
         data: updateData as any,
         include: {
             onboardingAnswers: { include: { question: true } },
-            skinConcerns: { include: { skinConcern: true } }
-        }
-    })
+            skinConcerns: { include: { skinConcern: true } },
+        },
+    });
 }
