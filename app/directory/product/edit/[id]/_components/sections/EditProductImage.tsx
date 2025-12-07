@@ -61,7 +61,7 @@ export default function EditProductImage({ imagePreview, onImageChange }: EditPr
                         <span className="text-sm">Change image</span>
                     </div>
                 )}
-                <input type="file" accept="image/*" onChange={handleImageChange} className="hidden" />
+                <input type="file" accept="image/*;capture=camera" onChange={handleImageChange} className="hidden" />
             </label>
         </div>
     );
