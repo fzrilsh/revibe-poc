@@ -8,6 +8,7 @@ export function buildPublicUser(user: any): UserPublic {
         // support both prisma camelCase and snake_case db fields
         birth_year: (user.birthYear ?? (user as any).birth_year) ?? null,
         profile_image: buildPublicUrl((user.profileImage ?? (user as any).profile_image) ?? null),
+        gender: (user.gender ?? (user as any).gender) ?? null,
         skin_type: (user.skinType ?? (user as any).skin_type) ?? null,
         created_at: user.createdAt?.toISOString?.() ?? (user as any).created_at ?? new Date().toISOString(),
         skin_concerns: (user.skinConcerns ?? (user as any).skin_concerns)?.map((usc: any) => {

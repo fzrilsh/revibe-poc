@@ -17,30 +17,33 @@ export async function findUserById(id: string) {
 export async function createUser(data: RegisterDto) {
     const { nickname, birth_year, skin_type, skin_concern_ids, onboarding_answers } = data
 
+    const createData: any = {
+        nickname,
+        gender: (data as any).gender ?? null,
+        birthYear: birth_year ?? null,
+        profileImage: (data as any).profile_image ?? null,
+        skinType: skin_type ?? null,
+
+        skinConcerns: skin_concern_ids?.length
+            ? {
+                create: skin_concern_ids.map((id: number) => ({
+                    skinConcern: { connect: { id } }
+                }))
+            }
+            : undefined,
+
+        onboardingAnswers: onboarding_answers?.length
+            ? {
+                create: onboarding_answers.map((a: any) => ({
+                    question: { connect: { id: a.questionId } },
+                    value: a.answer
+                }))
+            }
+            : undefined
+    }
+
     return await prisma.user.create({
-        data: {
-            nickname,
-            birthYear: birth_year ?? null,
-            profileImage: (data as any).profile_image ?? null,
-            skinType: skin_type ?? null,
-
-            skinConcerns: skin_concern_ids?.length
-                ? {
-                    create: skin_concern_ids.map(id => ({
-                        skinConcern: { connect: { id } }
-                    }))
-                }
-                : undefined,
-
-            onboardingAnswers: onboarding_answers?.length
-                ? {
-                    create: onboarding_answers.map(a => ({
-                        question: { connect: { id: a.questionId } },
-                        value: a.answer
-                    }))
-                }
-                : undefined
-        },
+        data: createData as any,
         include: {
             skinConcerns: { include: { skinConcern: true } },
             onboardingAnswers: { include: { question: true } }
@@ -86,14 +89,17 @@ export async function updateUser(id: string, data: any) {
     }
 
     // Without skin concerns, simple update
+    const updateData: any = {
+        gender: data.gender ?? undefined,
+        birthYear,
+        profileImage,
+        skinType: skinType ? (skinType as SkinType) : null,
+        nickname: nickname ?? undefined,
+    }
+
     return prisma.user.update({
         where: { id },
-        data: {
-            birthYear,
-            profileImage,
-            skinType: skinType ? (skinType as SkinType) : null,
-            nickname: nickname ?? undefined,
-        },
+        data: updateData as any,
         include: {
             onboardingAnswers: { include: { question: true } },
             skinConcerns: { include: { skinConcern: true } }

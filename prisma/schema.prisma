@@ -12,6 +12,7 @@ model User {
   nickname          String                 @map("nickname")
   birthYear         Int?                   @map("birth_year")
   profileImage      String?                @map("profile_image")
+  gender            String?                @map("gender")
   skinType          SkinType?              @map("skin_type")
   createdAt         DateTime               @default(now()) @map("created_at")
   id                String                 @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid

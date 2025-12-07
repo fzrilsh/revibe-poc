@@ -5,6 +5,7 @@ export type RegisterDto = {
     skin_concern_ids?: number[]
     onboarding_answers?: { questionId: number; answer: string }[]
     profile_image?: string | null
+    gender?: string | null
 }
 
 export type UserPublic = {
@@ -12,6 +13,7 @@ export type UserPublic = {
     nickname?: string | null
     birth_year?: number | null
     profile_image?: string | null
+    gender?: string | null
     skin_type?: string | null
     created_at: string
     skin_concerns?: { id: number; name: string }[]

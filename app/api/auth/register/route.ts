@@ -90,6 +90,7 @@ export async function POST(req: Request) {
         const profileImage = await uploadToSupabase(file);
 
         // Construct payload
+        const gender = form.get("gender") as string | null
         const payload: RegisterDto = {
             nickname: nickname!,
             birth_year: birthYearRaw ? Number(birthYearRaw) : undefined,
@@ -97,6 +98,7 @@ export async function POST(req: Request) {
             skin_concern_ids: skinConcernIds as number[],
             onboarding_answers: onboardingAnswers as any[],
             profile_image: buildPublicUrl(profileImage),
+            gender: gender ?? null,
         };
 
         // Validate
