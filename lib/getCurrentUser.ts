@@ -15,6 +15,7 @@ export async function getCurrentUserFromRequest(req: Request) {
         if (!userId) return null
         return await findUserById(userId)
     } catch (err) {
+
         return null
     }
 }
