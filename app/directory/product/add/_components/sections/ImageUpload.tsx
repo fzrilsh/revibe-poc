@@ -42,7 +42,7 @@ export default function ImageUpload({ imagePreview, onImageChange }: ImageUpload
                 )}
             </label>
 
-            <input id="image" name="image" type="file" accept="image/*;capture=camera" className="hidden" capture onChange={handleFileChange} />
+            <input id="image" name="image" type="file" accept="image/*;capture=camera" className="hidden" onChange={handleFileChange} />
         </div>
     );
 }
