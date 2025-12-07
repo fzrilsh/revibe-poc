@@ -4,13 +4,13 @@ import Header from "@navigation/header";
 import { DirectoryContent } from "./_components/DirectoryContent";
 import Navbar from "@navigation/navbar";
 import DirectoryHeader from "./_components/DirectoryHeader";
-import { useState } from "react";
+import { useState, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 
-export default function DirectoryPage() {
+function DirectoryPageContent() {
     const searchParams = useSearchParams();
     const router = useRouter();
-    
+
     // Initialize sortBy from URL param if it exists
     const getInitialSort = () => {
         const filterParam = searchParams?.get("filter");
@@ -48,5 +48,19 @@ export default function DirectoryPage() {
             </main>
             <Navbar />
         </>
+    );
+}
+
+export default function DirectoryPage() {
+    return (
+        <Suspense
+            fallback={
+                <div className="flex items-center justify-center min-h-screen">
+                    <p className="text-gray-500">Loading...</p>
+                </div>
+            }
+        >
+            <DirectoryPageContent />
+        </Suspense>
     );
 }
