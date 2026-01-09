@@ -1,45 +1,9 @@
-import Image from "next/image";
-
 interface BlogBodyProps {
-    content: string;
-    images?: string[];
-    tips?: {
-        icon: string;
-        text: string;
-    }[];
-    title: string;
+    content: string; // Full HTML content including images and tips
 }
 
-export default function BlogBody({ content, images, tips, title }: BlogBodyProps) {
-    return (
-        <div className="p-4 mb-4">
-            <p className="text-sm text-gray-700 leading-relaxed mb-4">{content}</p>
+export default function BlogBody({ content }: BlogBodyProps) {
+    const isHtml = typeof content === "string" && /<\s*\w+[^>]*>/i.test(content.trim());
 
-            {/* Additional Images */}
-            {images && images.length > 0 && (
-                <div className="space-y-4 mb-4">
-                    {images.map((img, idx) => (
-                        <div key={idx} className="relative w-full aspect-video rounded-xl overflow-hidden">
-                            <Image src={img} alt={`${title} image ${idx + 1}`} fill className="object-cover" />
-                        </div>
-                    ))}
-                </div>
-            )}
-
-            {/* Tips Section */}
-            {tips && tips.length > 0 && (
-                <div className="">
-                    <h3 className="font-bold text-sm mb-3">Tips from REVIBE team:</h3>
-                    <div className="space-y-2">
-                        {tips.map((tip, idx) => (
-                            <div key={idx} className="flex gap-2">
-                                <span className="text-sm shrink-0">{tip.icon}</span>
-                                <p className="text-sm text-gray-700">{tip.text}</p>
-                            </div>
-                        ))}
-                    </div>
-                </div>
-            )}
-        </div>
-    );
+    return <div className=" mb-4">{isHtml ? <div className="text-sm text-gray-700 leading-relaxed space-y-3 prose prose-sm max-w-none" dangerouslySetInnerHTML={{ __html: content }} /> : <p className="text-sm text-gray-700 leading-relaxed mb-4">{content}</p>}</div>;
 }

@@ -32,6 +32,7 @@ interface ApiItem {
     rating?: number | null;
     isNew?: boolean;
     daysLeft: number;
+    expiration_date: string;
     created_at?: string | null;
 }
 
@@ -64,8 +65,10 @@ export function DirectoryContent({ sortBy, activeCategories }: DirectoryContentP
 
                 const transformed: Product[] = items.map((item: ApiItem) => {
                     const createdAt = item.created_at ? new Date(item.created_at).toISOString() : new Date().toISOString();
+                    const now = new Date();
 
-                    const daysLeft = item.created_at ? Math.max(0, Math.floor((new Date(item.created_at).getTime() + 7 * 86400000 - Date.now()) / 86400000)) : 0;
+                    const expiryDate = new Date(item.expiration_date);
+                            const daysLeft = Math.ceil((expiryDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
 
                     return {
                         id: String(item.id),

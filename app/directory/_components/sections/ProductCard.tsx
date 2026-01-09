@@ -28,7 +28,7 @@ export default function ProductCard({ product, onProductClick }: ProductCardProp
                 <div className="absolute top-2 right-2 flex gap-2">
                     {product.isNew && <span className="text-[10px] bg-rose text-white px-2 py-0.5 rounded-full font-semibold flex-center">New</span>}
 
-                    {product.daysLeft > 0 && (
+                    {product.daysLeft && (
                         <div className="flex items-center gap-1 bg-remy text-cerise-red text-[10px] font-bold px-2 py-1 rounded-full">
                             <FaCalendar /> <span>{product.daysLeft}d</span>
                         </div>

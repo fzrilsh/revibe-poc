@@ -3,7 +3,7 @@ import { FaChevronRight } from "react-icons/fa";
 
 export function BannerSection() {
     return (
-        <div className="relative w-full rounded-xl overflow-hidden">
+        <div onClick={() => window.location.href = "/feed/blog/1"} className="cursor-pointer relative w-full rounded-xl overflow-hidden">
             <Image src={"/home/banner_home.svg"} alt="Banner Home" width={800} height={200} className="object-cover w-full h-full" />
             <div className="absolute top-0 left-0 h-full flex-start justify-center flex-col p-4">
                 <p className="font-light">Welcome to</p>

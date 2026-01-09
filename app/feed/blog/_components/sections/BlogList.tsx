@@ -15,14 +15,14 @@ const sampleBlogs: BlogPost[] = [
         author: "REVIBE Team",
         title: "Let's get started with REVIBE",
         date: "2 November 2025",
-        thumbnail: "/challenge/minimalist.svg",
+        thumbnail: "/home/banner_home.svg",
     },
     {
         id: "2",
         author: "REVIBE Team",
         title: "Learn about your product's Product After Opening (PAO)",
         date: "2 November 2025",
-        thumbnail: "/challenge/skin_fasting.svg",
+        thumbnail: "/community/pao.svg",
     },
 ];
 

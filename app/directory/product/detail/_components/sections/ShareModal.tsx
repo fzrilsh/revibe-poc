@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import { useState, useEffect } from "react";
 import { FaStar } from "react-icons/fa";
 import { FaGoogle, FaInstagram, FaLink, FaWhatsapp } from "react-icons/fa6";
 
@@ -15,7 +16,22 @@ interface ShareModalProps {
 }
 
 export default function ShareModal({ isOpen, onClose, product }: ShareModalProps) {
-    if (!isOpen) return null;
+    const [isAnimating, setIsAnimating] = useState(false);
+
+    useEffect(() => {
+        if (isOpen) {
+            setIsAnimating(true);
+        }
+    }, [isOpen]);
+
+    const handleClose = () => {
+        setIsAnimating(false);
+        setTimeout(() => {
+            onClose();
+        }, 300);
+    };
+
+    if (!isOpen && !isAnimating) return null;
 
     const shareMessage = "I really enjoyed this product and would recommend you to try!";
 
@@ -24,8 +40,8 @@ export default function ShareModal({ isOpen, onClose, product }: ShareModalProps
     };
 
     return (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-lg z-100 flex items-end justify-center" onClick={onClose}>
-            <div className="bg-linear-to-b from-portage to-black rounded-t-3xl w-full max-w-md p-6 pb-8 animate-slide-up" onClick={(e) => e.stopPropagation()}>
+        <div className={`fixed inset-0 z-100 flex items-end justify-center transition-colors duration-300 ${isAnimating ? "bg-black/50 backdrop-blur-lg" : "bg-transparent"}`} onClick={handleClose}>
+            <div className={`bg-linear-to-b from-portage to-black rounded-t-3xl w-full max-w-md p-6 pb-8 transition-transform duration-300 ${isAnimating ? "translate-y-0" : "translate-y-full"}`} onClick={(e) => e.stopPropagation()}>
                 {/* Handle bar */}
                 <div className="w-12 h-1 bg-white/40 rounded-full mx-auto mb-6" />
 
