@@ -5,6 +5,7 @@ import Navbar from "@navigation/navbar";
 import Image, { StaticImageData } from "next/image";
 import { useEffect, useState } from "react";
 import NavigationHeader from "@features/NavigationHeader";
+import { useRouter } from "next/navigation";
 
 interface DirectoryItem {
     id: number;
@@ -25,6 +26,7 @@ const usageOptions = ["1 week", "2 weeks", "1 month", "3 months", "6 months", "1
 const repurchaseOptions = ["Yes", "No", "Not sure"];
 
 export default function ReviewAddPage() {
+    const router = useRouter();
     const [items, setItems] = useState<DirectoryItem[]>([]);
     const [loadingItems, setLoadingItems] = useState(true);
     const [selectedProduct, setSelectedProduct] = useState<DirectoryItem | null>(null);
@@ -78,7 +80,15 @@ export default function ReviewAddPage() {
                 const err = await res.json().catch(() => ({}));
                 throw new Error(err?.message || "Failed to submit review");
             }
-            resetToList();
+            const result = await res.json();
+            const reviewId = result?.data?.review?.id;
+            
+            // Redirect to review detail page
+            if (reviewId) {
+                router.push(`/feed/community/review/${reviewId}`);
+            } else {
+                router.push("/feed/community");
+            }
         } catch (err) {
             console.error(err);
         } finally {

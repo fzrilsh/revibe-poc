@@ -36,6 +36,7 @@ interface Post {
         comments: number;
     };
     liked?: boolean;
+    created_at: string; // Keep original timestamp for accurate sorting
 }
 
 function skinTypeToLabel(skinType: string): string {
@@ -86,6 +87,7 @@ export default function CommunityContent() {
             badge: { text: "Post", color: "bg-[#B6B2FF]" },
             engagement: { likes: post.likes_count || 0, comments: post.comments_count || 0 },
             liked: post.liked === true,
+            created_at: post.created_at,
         };
     };
 
@@ -127,6 +129,7 @@ export default function CommunityContent() {
                     : undefined,
             engagement: { likes: review.likes_count || 0, comments: review.comments_count || 0 },
             liked: review.liked === true,
+            created_at: review.created_at,
         };
     };
 
@@ -136,8 +139,9 @@ export default function CommunityContent() {
         const [postsJson, reviewsJson] = await Promise.all([postsRes.json(), reviewsRes.json()]);
         const transformedPosts: Post[] = (postsJson.data?.posts || []).map(transformPost);
         const transformedReviews: Post[] = (reviewsJson.data?.reviews || []).map(transformReview);
+        // Sort by created_at timestamp (newest first)
         const combined = [...transformedPosts, ...transformedReviews].sort((a, b) => {
-            return new Date(b.author.timestamp).getTime() - new Date(a.author.timestamp).getTime();
+            return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
         });
         return combined;
     }, []);

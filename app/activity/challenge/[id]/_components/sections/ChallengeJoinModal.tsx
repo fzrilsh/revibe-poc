@@ -2,6 +2,7 @@
 
 import { FaGoogle, FaInstagram, FaLink, FaWhatsapp } from "react-icons/fa6";
 import Image from "next/image";
+import { useEffect, useState } from "react";
 
 interface ChallengeJoinModalProps {
     open: boolean;
@@ -11,15 +12,30 @@ interface ChallengeJoinModalProps {
 }
 
 export default function ChallengeJoinModal({ open, onClose, title, image }: ChallengeJoinModalProps) {
-    if (!open) return null;
+    const [isAnimating, setIsAnimating] = useState(false);
+
+    useEffect(() => {
+        if (open) {
+            setIsAnimating(true);
+        }
+    }, [open]);
+
+    const handleClose = () => {
+        setIsAnimating(false);
+        setTimeout(() => {
+            onClose();
+        }, 300);
+    };
+
+    if (!open && !isAnimating) return null;
 
     const handleShare = (platform: string) => {
         console.log("Share challenge via", platform);
     };
 
     return (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-lg z-100 flex items-end justify-center" onClick={onClose}>
-            <div className="w-full max-w-md rounded-t-3xl bg-onboarding p-6 pb-8 animate-slide-up" onClick={(e) => e.stopPropagation()}>
+        <div className={`fixed inset-0 z-100 flex items-end justify-center transition-colors duration-300 ${isAnimating ? "bg-black/50 backdrop-blur-lg" : "bg-transparent"}`} onClick={handleClose}>
+            <div className={`w-full max-w-md rounded-t-3xl bg-linear-to-b from-[#F7F5FE] to-[#E8E7FC] p-6 pb-8 max-h-[90vh] overflow-y-auto scrollbar-hide transition-transform duration-300 ${isAnimating ? "translate-y-0" : "translate-y-full"}`} onClick={(e) => e.stopPropagation()}>
                 <div className="w-12 h-1 bg-gray-300 rounded-full mx-auto mb-6" />
                 <h2 className="text-center text-2xl font-bold mb-4">Congratulations! 🎉</h2>
                 <div className="relative w-full h-32 rounded-xl overflow-hidden mb-6 bg-gray-100">
@@ -33,7 +49,7 @@ export default function ChallengeJoinModal({ open, onClose, title, image }: Chal
                     <ShareButton icon={FaInstagram} label="Instagram" onClick={() => handleShare("instagram")} bgColor="bg-pink-500" />
                     <ShareButton icon={FaGoogle} label="Email" onClick={() => handleShare("email")} bgColor="bg-blue-500" />
                 </div>
-                <button onClick={onClose} className="w-full mt-2 rounded-full bg-black text-white py-3 text-sm font-medium active:scale-[.97] transition">
+                <button onClick={handleClose} className="w-full mt-2 rounded-full bg-black text-white py-3 text-sm font-medium active:scale-[.97] transition">
                     Close
                 </button>
             </div>

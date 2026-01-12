@@ -81,10 +81,15 @@ export default function PostAddPage() {
             }
 
             const result = await response.json();
+            const postId = result?.data?.post?.id;
             console.log("Post created:", result);
 
-            // Redirect to community feed
-            router.push("/feed/community");
+            // Redirect to post detail page
+            if (postId) {
+                router.push(`/feed/community/post/${postId}`);
+            } else {
+                router.push("/feed/community");
+            }
         } catch (error) {
             console.error("Error creating post:", error);
             alert("Failed to create post. Please try again.");
