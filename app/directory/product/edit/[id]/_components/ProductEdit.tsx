@@ -5,6 +5,7 @@ import EditProductImage from "./sections/EditProductImage";
 import EditProductFields from "./sections/EditProductFields";
 import EditActionButtons from "./sections/EditActionButtons";
 import { LuArrowLeft } from "react-icons/lu";
+import { addNotification } from "@/lib/notifications";
 
 interface ProductFormData {
     brand: string;
@@ -163,9 +164,22 @@ export default function ProductEdit({ productId }: { productId: string }) {
                 method: "PATCH",
                 body: data,
             });
-            await res.json();
+            const json = await res.json();
 
             if (!res.ok) throw new Error("Failed to update item");
+            
+            // Add notification for edit
+            const updatedItem = json.data?.item;
+            if (updatedItem) {
+                addNotification(
+                    "edited",
+                    String(updatedItem.id),
+                    updatedItem.name || formData.name,
+                    updatedItem.brand || formData.brand,
+                    updatedItem.image_url || formData.imagePreview
+                );
+            }
+            
             window.location.href = "/directory";
         } catch (err) {
             console.error("Error updating item:", err);

@@ -3,6 +3,7 @@
 import { useState, useEffect, useMemo } from "react";
 import { EmptyState } from "./sections/EmptyState";
 import { ProductList } from "./sections/ProductList";
+import { addNotification } from "@/lib/notifications";
 
 interface DirectoryContentProps {
     sortBy: string;
@@ -68,7 +69,27 @@ export function DirectoryContent({ sortBy, activeCategories }: DirectoryContentP
                     const now = new Date();
 
                     const expiryDate = new Date(item.expiration_date);
-                            const daysLeft = Math.ceil((expiryDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+                    const daysLeft = Math.ceil((expiryDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+
+                    // Check if product has expired (daysLeft <= 0) and add notification
+                    if (daysLeft <= 0) {
+                        const notificationKey = `expired_notified_${item.id}`;
+                        const alreadyNotified = typeof window !== "undefined" ? localStorage.getItem(notificationKey) : null;
+                        
+                        if (!alreadyNotified) {
+                            addNotification(
+                                "expired",
+                                String(item.id),
+                                item.name || "Unnamed Product",
+                                item.brand || "Unknown Brand",
+                                item.image_url || undefined
+                            );
+                            // Mark as notified to avoid duplicate notifications
+                            if (typeof window !== "undefined") {
+                                localStorage.setItem(notificationKey, "true");
+                            }
+                        }
+                    }
 
                     return {
                         id: String(item.id),

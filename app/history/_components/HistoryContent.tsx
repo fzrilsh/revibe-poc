@@ -2,84 +2,74 @@
 
 import { useEffect, useMemo, useState } from "react";
 import HistorySection from "./sections/HistorySection";
+import { getNotifications, type DirectoryNotification } from "@/lib/notifications";
 
 export interface HistoryItem {
     id: string;
     title: string;
     description: string;
     createdAt: Date;
-    type: "added" | "expired" | "removed";
+    type: "added" | "expired" | "removed" | "edited";
+    productImage?: string;
 }
-
-type ApiItem = {
-    id: number | string;
-    brand?: string | null;
-    name?: string | null;
-    status?: string | null;
-    created_at?: string | null;
-    updated_at?: string | null;
-    expiration_date?: string | null;
-};
 
 export default function HistoryContent() {
     const [items, setItems] = useState<HistoryItem[]>([]);
     const [loading, setLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
-        let active = true;
-        (async () => {
-            try {
-                setLoading(true);
-                const res = await fetch("/api/items", { cache: "no-store" });
-                if (!res.ok) {
-                    if (res.status === 401) {
-                        setError("Please log in to view history");
-                    } else {
-                        throw new Error("Failed to fetch items");
-                    }
-                    return;
-                }
-                const json = await res.json();
-                const raw: ApiItem[] = (json?.data?.items ?? json?.items ?? []) as ApiItem[];
+        try {
+            setLoading(true);
+            
+            // Read notifications from localStorage
+            const notifications = getNotifications();
+            
+            // Transform notifications to history items
+            const historyItems: HistoryItem[] = notifications.map((notif) => {
+                const productInfo = `${notif.productBrand} ${notif.productName}`;
+                let title = "";
+                let description = "";
+                let type: "added" | "expired" | "removed" | "edited" = "added";
 
-                // Consider items with status used-up/disposed as history (moved out from active library)
-                const history = raw
-                    .filter((it) => {
-                        const s = (it.status ?? "").toLowerCase();
-                        return s === "used-up" || s === "disposed" || s === "archived";
-                    })
-                    .map<HistoryItem>((it) => {
-                        const whenStr = it.updated_at ?? it.created_at ?? new Date().toISOString();
-                        const when = new Date(whenStr);
-                        const brand = it.brand?.trim() || "Unknown";
-                        const name = it.name?.trim() || "Unnamed Product";
-                        const title = "Moved to history";
-                        const description = `"${brand} ${name}" was moved to history`;
-                        return {
-                            id: String(it.id),
-                            title,
-                            description,
-                            createdAt: when,
-                            type: "removed",
-                        };
-                    })
-                    .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
-
-                if (active) {
-                    setItems(history);
-                    setError(null);
+                switch (notif.type) {
+                    case "added":
+                        title = "Product Added";
+                        description = `"${productInfo}" was added to directory`;
+                        type = "added";
+                        break;
+                    case "edited":
+                        title = "Product Updated";
+                        description = `"${productInfo}" information was updated`;
+                        type = "edited";
+                        break;
+                    case "deleted":
+                        title = "Product Removed";
+                        description = `"${productInfo}" was removed from directory`;
+                        type = "removed";
+                        break;
+                    case "expired":
+                        title = "Product Expired";
+                        description = `"${productInfo}" has expired`;
+                        type = "expired";
+                        break;
                 }
-            } catch (err) {
-                console.error("Error loading history:", err);
-                if (active) setError("Failed to load history");
-            } finally {
-                if (active) setLoading(false);
-            }
-        })();
-        return () => {
-            active = false;
-        };
+
+                return {
+                    id: notif.id,
+                    title,
+                    description,
+                    createdAt: new Date(notif.timestamp),
+                    type,
+                    productImage: notif.productImage,
+                };
+            });
+
+            setItems(historyItems);
+        } catch (err) {
+            console.error("Error loading history:", err);
+        } finally {
+            setLoading(false);
+        }
     }, []);
 
     const isSameDay = (a: Date, b: Date) => a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate();
@@ -99,13 +89,13 @@ export default function HistoryContent() {
         );
     }
 
-    if (error) {
-        return (
-            <div className="pt-4 px-6">
-                <div className="text-red-500">{error}</div>
-            </div>
-        );
-    }
+    // if (error) {
+    //     return (
+    //         <div className="pt-4 px-6">
+    //             <div className="text-red-500">{error}</div>
+    //         </div>
+    //     );
+    // }
 
     return (
         <div className="pt-4 mx-auto">

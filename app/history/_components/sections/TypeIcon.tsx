@@ -1,7 +1,7 @@
-import { FaTrashAlt, FaBox, FaRegFolderOpen } from "react-icons/fa";
+import { FaTrashAlt, FaBox, FaRegFolderOpen, FaEdit } from "react-icons/fa";
 import { LuAlarmClock } from "react-icons/lu";
 
-type HistoryType = "added" | "expired" | "removed";
+type HistoryType = "added" | "expired" | "removed" | "edited";
 
 interface TypeIconProps {
     type: HistoryType;
@@ -15,6 +15,12 @@ export default function TypeIcon({ type }: TypeIconProps) {
             return (
                 <div className={`${base} bg-purple-100`}>
                     <FaRegFolderOpen />
+                </div>
+            );
+        case "edited":
+            return (
+                <div className={`${base} bg-blue-100`}>
+                    <FaEdit />
                 </div>
             );
         case "expired":

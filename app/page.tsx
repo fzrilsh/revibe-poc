@@ -84,8 +84,18 @@ export default function Home() {
                         return !Number.isNaN(t) && t - now <= in30 && t > now;
                     }).length;
                     setExpireCount(expCount);
-                    // If you track challenges via API, set it here; keep 0 otherwise
-                    setChallengeCount(0);
+                    
+                    // Count joined challenges from localStorage
+                    if (typeof window !== "undefined") {
+                        let joinedCount = 0;
+                        for (let i = 0; i < localStorage.length; i++) {
+                            const key = localStorage.key(i);
+                            if (key?.startsWith("challenge_joined_") && localStorage.getItem(key) === "true") {
+                                joinedCount++;
+                            }
+                        }
+                        setChallengeCount(joinedCount);
+                    }
                 }
             } catch {
                 // ignore

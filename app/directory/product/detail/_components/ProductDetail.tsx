@@ -8,6 +8,7 @@ import ActionButtons from "./sections/ActionButtons";
 import ShareModal from "./sections/ShareModal";
 import { LuArrowLeft } from "react-icons/lu";
 import { RiEdit2Line } from "react-icons/ri";
+import { addNotification } from "@/lib/notifications";
 
 const colorOptions = [
     { id: "warm-nude", label: "Warm Nude", color: "#E4A38A" },
@@ -87,6 +88,17 @@ export default function ProductDetail({ productId, onBack }: { productId: string
 
     const handleRemove = async () => {
         try {
+            // Add notification before deleting
+            if (product) {
+                addNotification(
+                    "deleted",
+                    product.id,
+                    product.name,
+                    product.brand,
+                    product.image
+                );
+            }
+
             const res = await fetch(`/api/items/${productId}`, {
                 method: "DELETE",
             });

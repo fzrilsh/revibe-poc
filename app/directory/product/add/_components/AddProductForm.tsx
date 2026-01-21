@@ -7,6 +7,7 @@ import ProductFields from "./sections/ProductFields";
 import SubmitButton from "./sections/SubmitButton";
 import NavigationHeader from "@features/NavigationHeader";
 import SuccessModal from "./sections/SuccessModal";
+import { addNotification } from "@/lib/notifications";
 
 interface ProductFormData {
     brand: string;
@@ -95,7 +96,19 @@ export default function AddProductForm({ onBack }: { onBack?: () => void }) {
 
             const json = await res.json();
             const productId = json.data?.item?.id;
+            const createdItem = json.data?.item;
             console.log("Item created:", json.data?.item);
+
+            // Add notification for new product
+            if (createdItem) {
+                addNotification(
+                    "added",
+                    String(createdItem.id),
+                    createdItem.name || data.name,
+                    createdItem.brand || data.brand,
+                    createdItem.image_url || data.imagePreview
+                );
+            }
 
             // Show success modal
             setSuccessProductId(productId);

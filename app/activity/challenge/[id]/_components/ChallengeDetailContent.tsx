@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import NavigationHeader from "./sections/NavigationHeader";
 import ChallengeImage from "./sections/ChallengeImage";
 import ChallengeInfo from "./sections/ChallengeInfo";
@@ -41,12 +41,30 @@ const challengeDetails: Record<string, ChallengeInfo> = {
 export default function ChallengeDetailContent({ id }: ChallengeDetailProps) {
     const detail = challengeDetails[id];
     const [joined, setJoined] = useState(false);
+    const [participants, setParticipants] = useState(detail ? detail.participants : 0);
+
+    // Hydrate join status from localStorage (per challenge)
+    useEffect(() => {
+        if (!detail) return;
+        const key = `challenge_joined_${id}`;
+        const stored = typeof window !== "undefined" ? localStorage.getItem(key) : null;
+        if (stored === "true") {
+            setJoined(true);
+            setParticipants(detail.participants + 1);
+        }
+    }, [detail, id]);
     const [showModal, setShowModal] = useState(false);
 
     if (!detail) return <p className="px-4 py-10 text-center text-sm text-gray-500">Challenge not found.</p>;
 
     const handleJoin = () => {
+        if (joined) return; // Prevent double join
         setJoined(true);
+        setParticipants((prev) => prev + 1);
+        const key = `challenge_joined_${id}`;
+        if (typeof window !== "undefined") {
+            localStorage.setItem(key, "true");
+        }
         setShowModal(true);
     };
 
@@ -54,7 +72,7 @@ export default function ChallengeDetailContent({ id }: ChallengeDetailProps) {
         <div className="w-full max-w-md mx-auto px-4 pb-20">
             <NavigationHeader />
             <ChallengeImage image={detail.image} title={detail.title} />
-            <ChallengeInfo title={detail.title} participants={detail.participants} description={detail.description} />
+            <ChallengeInfo title={detail.title} participants={participants} description={detail.description} />
             <ChallengeTips tips={detail.tips} />
             <JoinButton joined={joined} onJoin={handleJoin} />
             <ChallengeJoinModal open={showModal} onClose={() => setShowModal(false)} title={detail.title} image={detail.image} />
