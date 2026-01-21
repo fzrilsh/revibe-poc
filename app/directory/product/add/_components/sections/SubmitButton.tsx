@@ -1,19 +1,21 @@
 "use client";
 
-import { useState } from "react";
+import { FormEvent, useState } from "react";
 
 interface SubmitButtonProps {
     isEnabled: boolean;
+    handleSubmitForm: (e: FormEvent<Element>) => Promise<void>;
 }
 
-export default function SubmitButton({ isEnabled }: SubmitButtonProps) {
+export default function SubmitButton({ isEnabled, handleSubmitForm }: SubmitButtonProps) {
     const [isLoading, setIsLoading] = useState(false);
 
     const handleSubmit = async (e: React.FormEvent<HTMLButtonElement>) => {
         setIsLoading(true);
-        setTimeout(() => {
+
+        handleSubmitForm(e).then(() => {
             setIsLoading(false);
-        }, 3000);
+        })
     };
 
     const isDisabled = !isEnabled || isLoading;

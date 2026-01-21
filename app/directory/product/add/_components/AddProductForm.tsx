@@ -61,13 +61,12 @@ export default function AddProductForm({ onBack }: { onBack?: () => void }) {
         }));
     };
 
-    const requiredFilled = [data.brand, data.name, data.category, data.price, data.expirationDate, data.openingDate, data.periodAfterOpening, data.currentlyInUse, data.usage].every((v) => v.trim() !== "");
+    const requiredFilled = [data.imagePreview, data.brand, data.name, data.category, data.price, data.expirationDate, data.openingDate, data.periodAfterOpening, data.currentlyInUse, data.usage].every((v) => v?.trim() !== "" && !!v);
 
     const handleSubmit = async (e: FormEvent) => {
         e.preventDefault();
 
-        console.log('data: ', data);
-        if (!requiredFilled) return;
+        if (!requiredFilled) return alert("All field required to be filled.");
 
         try {
             const formData = new FormData();
@@ -132,7 +131,7 @@ export default function AddProductForm({ onBack }: { onBack?: () => void }) {
             {showSuccess && successProductId ? (
                 <SuccessModal imagePreview={data.imagePreview} onContinue={handleContinue} />
             ) : (
-                <form onSubmit={handleSubmit} className="w-full max-w-md mx-auto flex flex-col gap-6">
+                <form className="w-full max-w-md mx-auto flex flex-col gap-6">
                     {/* Title + Back */}
                     <NavigationHeader title={"Add Product"} onBack={onBack} />
 
@@ -140,7 +139,7 @@ export default function AddProductForm({ onBack }: { onBack?: () => void }) {
 
                     <ProductFields data={data} onChange={handleChange} />
 
-                    <SubmitButton isEnabled={requiredFilled} />
+                    <SubmitButton isEnabled={requiredFilled} handleSubmitForm={handleSubmit} />
                 </form>
             )}
         </>
