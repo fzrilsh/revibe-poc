@@ -65,6 +65,8 @@ export default function AddProductForm({ onBack }: { onBack?: () => void }) {
 
     const handleSubmit = async (e: FormEvent) => {
         e.preventDefault();
+
+        console.log('data: ', data);
         if (!requiredFilled) return;
 
         try {
