@@ -88,7 +88,11 @@ export default function ProductDetail({ productId, onBack }: { productId: string
 
     const handleRemove = async () => {
         try {
-            // Add notification before deleting
+            const res = await fetch(`/api/items/${productId}`, {
+                method: "DELETE",
+            });
+            if (!res.ok) throw new Error("Failed to delete item");
+
             if (product) {
                 addNotification(
                     "deleted",
@@ -99,10 +103,6 @@ export default function ProductDetail({ productId, onBack }: { productId: string
                 );
             }
 
-            const res = await fetch(`/api/items/${productId}`, {
-                method: "DELETE",
-            });
-            if (!res.ok) throw new Error("Failed to delete item");
             if (onBack) onBack();
             else window.location.href = "/directory";
         } catch (err) {
