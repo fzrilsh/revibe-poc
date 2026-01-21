@@ -59,8 +59,15 @@ export default function RegistrationPage() {
             const skinType = (answers[1] as string | undefined) ?? "";
             const concerns = (answers[2] as string[] | undefined) ?? [];
 
+            if (!profile?.file) {
+                setChecking(false);
+                setIndex(0);
+                alert("Profile iamge is required");
+                return;
+            }
+
             if (!profile || !profile.nickname || !profile.birthYear) {
-                console.log("Please complete your profile information");
+                alert("Please complete your profile information");
                 return;
             }
 
