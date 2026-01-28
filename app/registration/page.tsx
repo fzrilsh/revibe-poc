@@ -62,7 +62,7 @@ export default function RegistrationPage() {
             if (!profile?.file) {
                 setChecking(false);
                 setIndex(0);
-                alert("Profile iamge is required");
+                alert("Profile image is required");
                 return;
             }
 
